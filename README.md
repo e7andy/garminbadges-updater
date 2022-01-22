@@ -1,0 +1,1 @@
+# garminbadges-updater
