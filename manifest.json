@@ -8,9 +8,21 @@
   "background": {
     "service_worker": "background.js"
   },
+
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": [
+        "*://connect.garmin.com/*"
+      ],
+      "js": [
+        "content_script.js"
+      ]
+    }
+  ],
   
-  "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://garminbadges.com/api/*"],
+  "permissions": ["storage", "activeTab", "scripting", "webRequest"],
+  "host_permissions": ["https://garminbadges.com/api/*", "*://connect.garmin.com/modern/*"],
   
   "action": {
     "default_popup": "popup.html",
