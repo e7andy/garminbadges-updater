@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="button.css">
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div id="buttonDiv">
-    </div>
-    <div>
-      <p>Choose a different background color!</p>
+    <div class="container">
+      <div>
+          <p>Enter your username and email address for garminbadges.com</p>
+      </div>
+      <div class="form-group">
+        <label for="displayname">Username</label>
+        <input type="text" required class="form-control" id="displayname" name="displayname" aria-describedby="displaynameHelp" placeholder="Enter username" data-toggle="tooltip" data-placement="top" title="Do not use your email address as username. It is displayed publicly on the site.">
+        <small id="displaynameHelp" class="form-text text-muted">Username is displayed in the main page and in other pages.</small>
+
+        <label for="email">Email address</label>
+        <input type="email" required class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">Email will not be displayed and is only for user identification when you would like to delete your data and to protect your username so no one else can use it.</small>
+      
+      </div>
+      <button id="save">Save</button>
     </div>
   </body>
   <script src="options.js"></script>

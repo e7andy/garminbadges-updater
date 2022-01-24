@@ -1,0 +1,45 @@
+.container {
+    width: 30rem;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+button {
+  height: 30px;
+  outline: none;
+  border-radius: 2px;
+}
+
+.update_button {
+  width: 60px;
+  outline: none;
+  margin: 5px;
+  border-radius: 2px;
+  color:  white;
+  font-weight: bold;
+  #background-color: #3aa757;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: .5rem;
+}
+
+.form-group {
+  maring-bottom: 1rem;
+}
+
+.form-control {
+  display: block;
+  width: 30rem;
+  padding: .375rem .75rem;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+}
+
+.form-text {
+  display: block;
+    margin-bottom: .5rem;
+}
+
+.text-muted { color: #6c757d !important }

@@ -5,22 +5,6 @@
   "manifest_version": 3,
   "homepage_url": "https://garminbadges.com",
 
-  "background": {
-    "service_worker": "background.js"
-  },
-
-  "content_scripts": [
-    {
-      "all_frames": true,
-      "matches": [
-        "*://connect.garmin.com/*"
-      ],
-      "js": [
-        "content_script.js"
-      ]
-    }
-  ],
-  
   "permissions": ["storage", "activeTab", "scripting", "webRequest"],
   "host_permissions": ["https://garminbadges.com/api/*", "*://connect.garmin.com/modern/*"],
   
@@ -40,6 +24,8 @@
     "48": "/images/icon_48.png",
     "128": "/images/icon_128.png"
   },
-  
-  "options_page": "options.html"
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
 }
