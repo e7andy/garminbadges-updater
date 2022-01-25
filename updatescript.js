@@ -64,7 +64,7 @@ function updateButtonClicked() {
       console.log("GB earned response: ", gbEarnedContent);
 
       //TODO: Fetch badge data for each badgeId
-      const garminBadgeJsonArray = []; //<--- This array will hold each replay
+      const garminBadgeJsonArray = []; //<--- This array will hold each reply
 
       //TODO: Create new badge json
       const garminBadgeJson = createBadgeJson(garminBadgeJsonArray);
