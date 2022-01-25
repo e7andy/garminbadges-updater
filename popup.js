@@ -17,11 +17,20 @@ updateButton.addEventListener("click", async () => {
 // The body of this function will be execuetd as a content script inside the
 // current page
 async function updateButtonClicked() {
-  function isEmpty(str) {
-      return !str.trim().length;
-  }
+  const isEmpty = (str) => {
+    return !str.trim().length;
+  };
 
   async function updateData() {
+    const setStatus = (msg) => {
+      var status = document.getElementById("update_button");
+      console.log("status", status);
+      status.textContent = msg;
+      setTimeout(function() {
+        status.textContent = 'Update';
+      }, 1500);
+    };
+
     console.log("Call garmin.com with fetch for: " + username + ", " + email);
     const garminResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
       method: 'GET',
@@ -47,11 +56,9 @@ async function updateButtonClicked() {
     const gbContent = await gbResponse.json();
 
     console.log("GB",gbContent);
-  }
 
-  chrome.storage.sync.get("color", ({ color }) => {
-    document.body.style.backgroundColor = color;
-  });
+    setStatus("Done");
+  }
 
   let username;
   let email;
@@ -60,7 +67,6 @@ async function updateButtonClicked() {
     username: '',
     email: ''
   }, function(data) {
-    console.log("Options fetched");
     username = data.username;
     email = data.email;
 
