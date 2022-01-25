@@ -5,7 +5,7 @@
   "manifest_version": 3,
   "homepage_url": "https://garminbadges.com",
 
-  "permissions": ["storage", "activeTab", "scripting", "webRequest"],
+  "permissions": ["storage", "scripting"],
   "host_permissions": ["https://garminbadges.com/api/*", "*://connect.garmin.com/modern/*"],
   
   "action": {

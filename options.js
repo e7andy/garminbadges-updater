@@ -18,7 +18,6 @@ const isValidEmail = (email) => {
     );
 };
 
-
 function save_options() {
   var username = document.getElementById('displayname').value;
   var email = document.getElementById('emailAddress').value;
@@ -39,6 +38,14 @@ function save_options() {
     // Update status to let user know options were saved.
     updateStatus("Options saved.");
   });
+
+  /*chrome.storage.sync.set({
+    username: '',
+    email: ''
+  }, function() {
+    // Update status to let user know options were saved.
+    updateStatus("Options saved.");
+  });*/
 }
 
 function restore_options() {
