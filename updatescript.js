@@ -29,11 +29,6 @@ async function updateButtonClicked() {
     if(!isOptionsValid(username, email)) {
       openOptionsPage();
     } else {
-
-
-      let updateKey = "1234567-example";
-      /*
-
       //TODO: Fetch update key for username and email from garminbadges.com
       const userJson = {
         "username": username,
@@ -65,11 +60,9 @@ async function updateButtonClicked() {
         throw new Error("Error: Fetch of badge data failed.");
       });
       const garminEarnedJson = await garminEarnedResponse.json();
-      //console.log("Garmin - earned json: ",JSON.stringify(garminEarnedJson));
 
       //Create new earned json
       const strippedGarminEarnedJson = createGarminBadgesJson(garminEarnedJson, updateKey);
-      //console.log("Garmin - stripped earned json: ",JSON.stringify(strippedGarminEarnedJson));
 
       //Send new earned json to garminbadges.com
       //TODO: garminbadges.com returns with an array of badgeIds to fetch from Garmin
@@ -85,13 +78,11 @@ async function updateButtonClicked() {
       const gbEarnedContent = await gbEarnedResponse.json();
       console.log("GB earned response: ", gbEarnedContent);
 
-      */
+      //Fetch badge data for each badgeId
+      const testBadgeIdsToFetch = [1439, 1440, 1441];
+      const garminBadgeJsonArray = await fetchBadgesFromGarmin(testBadgeIdsToFetch);
 
-      //TODO: Fetch badge data for each badgeId
-      const badgeIdsToFetch = [1439, 1440, 1441];
-      const garminBadgeJsonArray = await fetchBadgesFromGarmin(badgeIdsToFetch);
-
-      //TODO: Create new badge json
+      //Create new badge json
       const garminBadgeJson = createGarminBadgesJson(garminBadgeJsonArray, updateKey);
 
       //TODO: Send new badge json to garminbadges.com
@@ -105,7 +96,6 @@ async function updateButtonClicked() {
         body: JSON.stringify(garminBadgeJson)
       });
       const gbBadgeContent = await gbBadgeResponse.json();
-      console.log("GB badge response: ",gbBadgeContent);
 
       alertUser("Garminbadges.com is now updated with your data.");
     }
@@ -114,7 +104,6 @@ async function updateButtonClicked() {
 
 async function fetchBadgesFromGarmin(badgeIdArray) {
   let badgeJson = [];
-
   for (const id of badgeIdArray) {
     const garminBadgeResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/detail/v2/' + id, {
       method: 'GET',
@@ -125,12 +114,8 @@ async function fetchBadgesFromGarmin(badgeIdArray) {
       },
     });
     const garminBadgeJson = await garminBadgeResponse.json();
-    //console.log("Badge", JSON.stringify(garminBadgeJson));
-
     badgeJson.push(garminBadgeJson);
   }
-  //console.log("Badges", JSON.stringify(badgeJson));
-
   return badgeJson;
 }
 
@@ -164,9 +149,6 @@ function createGarminBadgesJson(json, updateKey) {
     "updateKey": updateKey,
     "badges": newJson
   }
-
-  console.log("NewJson", JSON.stringify(newJson));
-
   return newJson;
 }
 
