@@ -29,24 +29,23 @@ async function updateButtonClicked() {
     if(!isOptionsValid(username, email)) {
       openOptionsPage();
     } else {
-      //TODO: Fetch update key for username and email from garminbadges.com
+
+      //Fetch update key for username and email from garminbadges.com
       const userJson = {
         "username": username,
         "email": email
       }
-      console.log("Fetch update key for: ", userJson);
-      const gbUserResponse = await fetch('https://garminbadges.com/api/test.php', {
-        method: 'POST',
+      const gbUserResponse = await fetch('https://garminbadges.com/api/index.php/user/updatekey?username='+username+'&email='+email, {
+        method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userJson)
+        }
       });
       const gbUserContent = await gbUserResponse.json();
-      console.log("GB user response: ", gbUserContent);
-      let updateKey = "1234567-example";
+      let updateKey = gbUserContent.update_key;
 
+      /*
       //Fetch earned json from Garmin
       const garminEarnedResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
         method: 'GET',
@@ -96,6 +95,7 @@ async function updateButtonClicked() {
         body: JSON.stringify(garminBadgeJson)
       });
       const gbBadgeContent = await gbBadgeResponse.json();
+      */
 
       alertUser("Garminbadges.com is now updated with your data.");
     }
