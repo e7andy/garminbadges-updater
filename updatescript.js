@@ -33,7 +33,7 @@ function updateButtonClicked() {
       //TODO: Fetch update key for username and email from garminbadges.com
       console.log("Fetch update key for: " + username + ", " + email);
 
-      //TODO: Fetch earned json from Garmin
+      //Fetch earned json from Garmin
       const garminEarnedResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
         method: 'GET',
         headers: {
@@ -49,7 +49,7 @@ function updateButtonClicked() {
       console.log("Garmin - earned json: ",JSON.stringify(garminEarnedJson));
 
       //TODO: Create new earned json
-      const strippedGarminEarnedJson = stripEarnedJson(garminEarnedJson);
+      const strippedGarminEarnedJson = createEarnedJson(garminEarnedJson);
       console.log("Garmin - stripped earned json: ",JSON.stringify(strippedGarminEarnedJson));
 
       //TODO: Send new earned json to garminbadges.com
@@ -85,20 +85,22 @@ function updateButtonClicked() {
       const gbBadgeContent = await gbBadgeResponse.json();
       console.log("GB badge response: ",gbBadgeContent);
 
-      //TODO: Done!
-      console.log("Done!");
       alertUser("Garminbadges.com is now updated with your data.");
     }
   });
 }
 
-function stripEarnedJson(json) {
+function createEarnedJson(json) {
   //TODO
+  //TODO: Add updatekey
+
   return json;
 }
 
 function createBadgeJson(json) {
   //TODO
+  //TODO: Add updatekey
+
   return json;
 }
 
