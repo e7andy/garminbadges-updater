@@ -14,7 +14,7 @@ function openOptionsPage() {
   }
 }
 
-function updateButtonClicked() {
+async function updateButtonClicked() {
 
   let username;
   let email;
@@ -30,8 +30,27 @@ function updateButtonClicked() {
       openOptionsPage();
     } else {
 
+
+      let updateKey = "1234567-example";
+      /*
+
       //TODO: Fetch update key for username and email from garminbadges.com
-      console.log("Fetch update key for: " + username + ", " + email);
+      const userJson = {
+        "username": username,
+        "email": email
+      }
+      console.log("Fetch update key for: ", userJson);
+      const gbUserResponse = await fetch('https://garminbadges.com/api/test.php', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userJson)
+      });
+      const gbUserContent = await gbUserResponse.json();
+      console.log("GB user response: ", gbUserContent);
+      let updateKey = "1234567-example";
 
       //Fetch earned json from Garmin
       const garminEarnedResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
@@ -46,13 +65,13 @@ function updateButtonClicked() {
         throw new Error("Error: Fetch of badge data failed.");
       });
       const garminEarnedJson = await garminEarnedResponse.json();
-      console.log("Garmin - earned json: ",JSON.stringify(garminEarnedJson));
+      //console.log("Garmin - earned json: ",JSON.stringify(garminEarnedJson));
 
-      //TODO: Create new earned json
-      const strippedGarminEarnedJson = createEarnedJson(garminEarnedJson);
-      console.log("Garmin - stripped earned json: ",JSON.stringify(strippedGarminEarnedJson));
+      //Create new earned json
+      const strippedGarminEarnedJson = createGarminBadgesJson(garminEarnedJson, updateKey);
+      //console.log("Garmin - stripped earned json: ",JSON.stringify(strippedGarminEarnedJson));
 
-      //TODO: Send new earned json to garminbadges.com
+      //Send new earned json to garminbadges.com
       //TODO: garminbadges.com returns with an array of badgeIds to fetch from Garmin
       console.log("Send stripped earned json to garminbadges.com");
       const gbEarnedResponse = await fetch('https://garminbadges.com/api/test.php', {
@@ -66,11 +85,14 @@ function updateButtonClicked() {
       const gbEarnedContent = await gbEarnedResponse.json();
       console.log("GB earned response: ", gbEarnedContent);
 
+      */
+
       //TODO: Fetch badge data for each badgeId
-      const garminBadgeJsonArray = []; //<--- This array will hold each reply
+      const badgeIdsToFetch = [1439, 1440, 1441];
+      const garminBadgeJsonArray = await fetchBadgesFromGarmin(badgeIdsToFetch);
 
       //TODO: Create new badge json
-      const garminBadgeJson = createBadgeJson(garminBadgeJsonArray);
+      const garminBadgeJson = createGarminBadgesJson(garminBadgeJsonArray, updateKey);
 
       //TODO: Send new badge json to garminbadges.com
       console.log("Send badge json to garminbadges.com");
@@ -90,18 +112,62 @@ function updateButtonClicked() {
   });
 }
 
-function createEarnedJson(json) {
-  //TODO
-  //TODO: Add updatekey
+async function fetchBadgesFromGarmin(badgeIdArray) {
+  let badgeJson = [];
 
-  return json;
+  for (const id of badgeIdArray) {
+    const garminBadgeResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/detail/v2/' + id, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'nk': 'NT'
+      },
+    });
+    const garminBadgeJson = await garminBadgeResponse.json();
+    //console.log("Badge", JSON.stringify(garminBadgeJson));
+
+    badgeJson.push(garminBadgeJson);
+  }
+  //console.log("Badges", JSON.stringify(badgeJson));
+
+  return badgeJson;
 }
 
-function createBadgeJson(json) {
-  //TODO
-  //TODO: Add updatekey
+function createGarminBadgesJson(json, updateKey) {
+  let newJson = [];
+    
+  const unitArray = {
+    1: "mi_km",
+    2: "ft_m",
+    3: "activities",
+    4: "days",
+    5: "steps",
+    6: "mi",
+    7: "seconds"
+  };
 
-  return json;
+  json.forEach((badge) => {
+    const newBadge = {
+      "badgeId": badge.badgeId,
+      "badgeName": badge.badgeName,
+      "count": badge.badgeEarnedNumber,
+      "earned_date": badge.badgeEarnedDate,
+      "badgeProgressValue": badge.badgeProgressValue,
+      "badgeTargetValue": badge.badgeTargetValue,
+      "badgeUnit": unitArray[badge.badgeUnitId]
+    }
+    newJson.push(newBadge);
+  });
+
+  newJson = {
+    "updateKey": updateKey,
+    "badges": newJson
+  }
+
+  console.log("NewJson", JSON.stringify(newJson));
+
+  return newJson;
 }
 
 function isOnGarminConnect() {
