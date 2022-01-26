@@ -41,6 +41,9 @@ function updateButtonClicked() {
           'Content-Type': 'application/json',
           'nk': 'NT'
         },
+      }).catch((error) => {
+        alertUser("Fetching badge data failed. Are you logged in to Garmin Connect?");
+        throw new Error("Error: Fetch of badge data failed.");
       });
       const garminEarnedJson = await garminEarnedResponse.json();
       console.log("Garmin - earned json: ",JSON.stringify(garminEarnedJson));
@@ -84,6 +87,7 @@ function updateButtonClicked() {
 
       //TODO: Done!
       console.log("Done!");
+      alertUser("Garminbadges.com is now updated with your data.");
     }
   });
 }
@@ -98,4 +102,18 @@ function createBadgeJson(json) {
   return json;
 }
 
-updateButtonClicked();
+function isOnGarminConnect() {
+  let hostname = window.location.hostname.toLowerCase();
+  return hostname.search("connect.garmin.com") >= 0;
+}
+
+function alertUser(msg) {
+  alert("Garmin Badges\n" + msg);
+}
+
+if(isOnGarminConnect()) {
+  updateButtonClicked();  
+} else {
+  alertUser("Go to Garmin Connect and log in before you click the button.");
+}
+
