@@ -23,6 +23,7 @@ button {
   color:  white;
   font-weight: bold;
   background-color: #3aa757;
+  border: 1px;
 }
 
 label {
