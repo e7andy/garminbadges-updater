@@ -5,6 +5,10 @@
     padding-bottom: 15px;
 }
 
+.status {
+  height: 10px;
+}
+
 button {
   height: 30px;
   outline: none;
@@ -18,7 +22,7 @@ button {
   border-radius: 2px;
   color:  white;
   font-weight: bold;
-  #background-color: #3aa757;
+  background-color: #3aa757;
 }
 
 label {

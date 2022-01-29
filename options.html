@@ -6,19 +6,20 @@
   <body>
     <div class="container">
       <div>
-          <p>Enter your username and email address for garminbadges.com</p>
+          <p>Enter your username and email address for <a href="https://garminbadges.com" target="_blank">garminbadges.com</a></p>
+          <p><small>(If you don't have a previous account at garminbadges.com, one will be created with the username and email address you enter. Passwords are not used.)</small></p>
       </div>
       <div class="form-group">
         <label for="displayname">Username</label>
         <input type="text" required class="form-control" id="displayname" name="displayname" aria-describedby="displaynameHelp" placeholder="Enter username" data-toggle="tooltip" data-placement="top" title="Do not use your email address as username. It is displayed publicly on the site.">
-        <small id="displaynameHelp" class="form-text text-muted">Username is displayed in the main page and in other pages.</small>
+        <small id="displaynameHelp" class="form-text text-muted">Username is displayed publicly. Avoid using your email address.</small>
 
         <label for="email">Email address</label>
         <input type="email" required class="form-control" id="emailAddress" name="email" aria-describedby="emailHelp" placeholder="Enter email">
-        <small id="emailHelp" class="form-text text-muted">Email will not be displayed and is only for user identification when you would like to delete your data and to protect your username so no one else can use it.</small>
-      
+        <small id="emailHelp" class="form-text text-muted">Email will not be displayed and is only for user identification if you would like to delete your data and to protect your username so no one else can use it.</small>
       </div>
       <button id="saveButton">Save</button>
+      <div class="status" id="status"></div>
     </div>
   </body>
   <script src="options.js"></script>
