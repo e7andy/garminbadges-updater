@@ -17,6 +17,16 @@
         <label for="email">Email address</label>
         <input type="email" required class="form-control" id="emailAddress" name="email" aria-describedby="emailHelp" placeholder="Enter email">
         <small id="emailHelp" class="form-text text-muted">Email will not be displayed and is only for user identification if you would like to delete your data and to protect your username so no one else can use it.</small>
+
+        <label for="shouldOpenGarminbadgesMainPage">Open main page at garminbadges.com after update?</label>
+        <input type="checkbox" required class="form-control" id="shouldOpenGarminbadgesMainPage" name="shouldOpenGarminbadgesMainPage" checked>
+
+        <label for="shouldOpenGarminbadgesChallengePage">Open challenge page at garminbadges.com after update?</label>
+        <input type="checkbox" required class="form-control" id="shouldOpenGarminbadgesChallengePage" name="shouldOpenGarminbadgesChallengePage">
+
+        <label for="shouldShowSuccessfulAlert">Show message after successful update?</label>
+        <input type="checkbox" required class="form-control" id="shouldShowSuccessfulAlert" name="shouldShowSuccessfulAlert" aria-describedby="shouldShowSuccessfulAlertHelp" checked>
+        <small id="shouldShowSuccessfulAlertHelp" class="form-text text-muted">After successful update a message is displayed. Uncheck to disable.</small>
       </div>
       <button id="saveButton">Save</button>
       <div class="status" id="status"></div>

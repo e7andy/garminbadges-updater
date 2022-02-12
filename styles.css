@@ -36,11 +36,13 @@ label {
 }
 
 .form-control {
-  display: block;
-  width: 30rem;
   padding: .375rem .75rem;
   border-radius: 0.25rem;
   box-sizing: border-box;
+}
+
+input[type=text], input[type=email] {
+  width: 30rem;
 }
 
 .form-text {

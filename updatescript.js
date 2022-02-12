@@ -7,20 +7,48 @@ function isOptionsValid(username, email) {
 }
 
 function openOptionsPage() {
-  chrome.runtime.sendMessage("showOptions");
+    const msg = {
+    'name': 'showOptions'
+  };
+  chrome.runtime.sendMessage(msg);
+}
+
+function openGarminbadgesMainPage(userId) {
+  const msg = {
+    'name': 'openGarminbadgesMainPage',
+    'userId': userId
+  };
+  chrome.runtime.sendMessage(msg);
+}
+
+function openGarminbadgesChallengePage(userId) {
+  const msg = {
+    'name': 'openGarminbadgesChallengePage',
+    'userId': userId
+  };
+  chrome.runtime.sendMessage(msg);
 }
 
 async function updateButtonClicked() {
 
   let username;
   let email;
+  let shouldOpenGarminbadgesMainPage;
+  let shouldOpenGarminbadgesChallengePage;
+  let shouldShowSuccessfulAlert;
 
   chrome.storage.sync.get({
     username: '',
-    email: ''
+    email: '',
+    shouldOpenGarminbadgesMainPage: true,
+    shouldOpenGarminbadgesChallengePage: false,
+    shouldShowSuccessfulAlert: true
   }, async function(data) {
     username = data.username;
     email = data.email;
+    shouldOpenGarminbadgesMainPage = data.shouldOpenGarminbadgesMainPage;
+    shouldOpenGarminbadgesChallengePage = data.shouldOpenGarminbadgesChallengePage;
+    shouldShowSuccessfulAlert = data.shouldShowSuccessfulAlert;
 
     if(!isOptionsValid(username, email)) {
       openOptionsPage();
@@ -40,6 +68,7 @@ async function updateButtonClicked() {
         throw new Error("Error: Fetch of user data failed.");
       }
       let update_key = gbUserContent.update_key;
+      let userId = gbUserContent.id;
 
       //Fetch earned json from Garmin
       const garminEarnedResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
@@ -88,7 +117,18 @@ async function updateButtonClicked() {
       });
       const gbBadgeContent = await gbBadgeResponse.json();
 
-      alertUser("Garminbadges.com is now updated with your data.");
+      if(shouldShowSuccessfulAlert) {
+        alertUser("Garminbadges.com is now updated with your data.");
+      }
+
+      if(shouldOpenGarminbadgesMainPage) {
+        openGarminbadgesMainPage(userId);
+      }
+      if(shouldOpenGarminbadgesChallengePage) {
+        openGarminbadgesChallengePage(userId);
+      }
+
+      console.log("INFO: Garminbadges.com is updated with your data from Garmin Connect.");
     }
   });
 }

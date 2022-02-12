@@ -21,6 +21,9 @@ const isValidEmail = (email) => {
 function save_options() {
   var username = document.getElementById('displayname').value;
   var email = document.getElementById('emailAddress').value;
+  var shouldOpenGarminbadgesMainPage = document.getElementById('shouldOpenGarminbadgesMainPage').checked;
+  var shouldOpenGarminbadgesChallengePage = document.getElementById('shouldOpenGarminbadgesChallengePage').checked;
+  var shouldShowSuccessfulAlert = document.getElementById('shouldShowSuccessfulAlert').checked;
 
   //Validate input
   if(isEmpty(username) || isEmpty(email)) {
@@ -33,7 +36,10 @@ function save_options() {
 
   chrome.storage.sync.set({
     username: username,
-    email: email
+    email: email,
+    shouldOpenGarminbadgesMainPage: shouldOpenGarminbadgesMainPage,
+    shouldOpenGarminbadgesChallengePage: shouldOpenGarminbadgesChallengePage,
+    shouldShowSuccessfulAlert: shouldShowSuccessfulAlert
   }, function() {
     // Update status to let user know options were saved.
     updateStatus("Options saved.");
@@ -41,7 +47,10 @@ function save_options() {
 
   /*chrome.storage.sync.set({
     username: '',
-    email: ''
+    email: '',
+    shouldOpenGarminbadgesMainPage: true,
+    shouldOpenGarminbadgesChallengePage: false
+    shouldShowSuccessfulAlert: true
   }, function() {
     // Update status to let user know options were saved.
     updateStatus("Options saved.");
@@ -51,10 +60,16 @@ function save_options() {
 function restore_options() {
   chrome.storage.sync.get({
     username: '',
-    email: ''
+    email: '',
+    shouldOpenGarminbadgesMainPage: true,
+    shouldOpenGarminbadgesChallengePage: false,
+    shouldShowSuccessfulAlert: true
   }, function(data) {
     document.getElementById('displayname').value = data.username;
     document.getElementById('emailAddress').value = data.email;
+    document.getElementById('shouldOpenGarminbadgesMainPage').checked = data.shouldOpenGarminbadgesMainPage;
+    document.getElementById('shouldOpenGarminbadgesChallengePage').checked = data.shouldOpenGarminbadgesChallengePage;
+    document.getElementById('shouldShowSuccessfulAlert').checked = data.shouldShowSuccessfulAlert;
   });
 }
 document.addEventListener('DOMContentLoaded', restore_options);
