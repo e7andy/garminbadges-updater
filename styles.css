@@ -15,8 +15,8 @@ button {
   border-radius: 2px;
 }
 
-.update_button {
-  width: 60px;
+.fetch_data_button {
+  width: 30rem;
   outline: none;
   margin: 5px;
   border-radius: 2px;
@@ -24,6 +24,10 @@ button {
   font-weight: bold;
   background-color: #3aa757;
   border: 1px;
+}
+
+.data_button {
+  width: 60px;
 }
 
 label {
@@ -41,7 +45,7 @@ label {
   box-sizing: border-box;
 }
 
-input[type=text], input[type=email] {
+input[type=text], input[type=email], input[type=password] {
   width: 30rem;
 }
 

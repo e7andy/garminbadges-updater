@@ -33,6 +33,7 @@ async function updateButtonClicked() {
 
   let username;
   let email;
+  let password;
   let shouldOpenGarminbadgesMainPage;
   let shouldOpenGarminbadgesChallengePage;
   let shouldShowSuccessfulAlert;
@@ -40,6 +41,7 @@ async function updateButtonClicked() {
   chrome.storage.sync.get({
     username: '',
     email: '',
+    password: '',
     shouldOpenGarminbadgesMainPage: true,
     shouldOpenGarminbadgesChallengePage: false,
     shouldShowSuccessfulAlert: true
@@ -191,10 +193,3 @@ function isOnGarminConnect() {
 function alertUser(msg = 'Sorry! Something went wrong. Try again. Contact garminbadges.com if issue persists.') {
   alert("Garmin Badges\n" + msg);
 }
-
-if(isOnGarminConnect()) {
-  updateButtonClicked();  
-} else {
-  alertUser("Go to Garmin Connect and log in before you click the button.");
-}
-

@@ -1,15 +1,15 @@
-let updateButton = document.getElementById("update_button");
+let updateMyDataButton = document.getElementById("update_my_data_button");
 
-// When the button is clicked, inject updatescript.js into current page
-updateButton.addEventListener("click", async () => {
-  updateButton.textContent = "Wait...";
-  updateButton.disabled = true;
-  updateButton.style.background = 'gray';
+updateMyDataButton.addEventListener("click", async () => {
+  updateMyDataButton.textContent = "Wait...";
+  updateMyDataButton.disabled = true;
+  updateMyDataButton.style.background = 'gray';
   
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    files: ['updatescript.js'],
+    files: ['functions.js', 'script_updatemydata.js'],
   });
 });
+
