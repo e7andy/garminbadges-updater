@@ -73,11 +73,12 @@ async function updateButtonClicked() {
       let userId = gbUserContent.id;
 
       //Fetch earned json from Garmin
-      const garminEarnedResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/earned', {
+      const garminEarnedResponse = await fetch('https://connect.garmin.com/badge-service/badge/earned', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'di-backend': 'connectapi.garmin.com',
           'nk': 'NT'
         },
       }).catch((error) => {
@@ -138,11 +139,12 @@ async function updateButtonClicked() {
 async function fetchBadgesFromGarmin(badgeIdArray = []) {
   let badgeJson = [];
   for (const item of badgeIdArray) {
-    const garminBadgeResponse = await fetch('https://connect.garmin.com/modern/proxy/badge-service/badge/detail/v2/' + item.badgeNo, {
+    const garminBadgeResponse = await fetch('https://connect.garmin.com/badge-service/badge/detail/v2/' + item.badgeNo, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'di-backend': 'connectapi.garmin.com',
         'nk': 'NT'
       },
     });
