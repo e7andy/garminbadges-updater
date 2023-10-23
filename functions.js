@@ -137,23 +137,19 @@ async function updateButtonClicked() {
   });
 }
 
-async function fetchBadgesFromGarmin(badgeIdArray = []) {
-  let badgeJson = [];
-  for (const item of badgeIdArray) {
-    const garminBadgeResponse = await fetch('https://connect.garmin.com/badge-service/badge/detail/v2/' + item.badgeNo, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'di-backend': 'connectapi.garmin.com',
-        'nk': 'NT',
-        'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
-      },
-    });
-    const garminBadgeJson = await garminBadgeResponse.json();
-    badgeJson.push(garminBadgeJson);
-  }
-  return badgeJson;
+async function fetchOneBadgeFromGarmin(badgeNo, badgeJson) {
+  const garminBadgeResponse = await fetch('https://connect.garmin.com/badge-service/badge/detail/v2/' + badgeNo, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'di-backend': 'connectapi.garmin.com',
+      'nk': 'NT',
+      'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
+    },
+  });
+  const garminBadgeJson = await garminBadgeResponse.json();
+  badgeJson.push(garminBadgeJson);
 }
 
 async function fetchBadgesFromGarmin(badgeIdArray = []) {
