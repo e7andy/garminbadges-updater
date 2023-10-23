@@ -156,6 +156,21 @@ async function fetchBadgesFromGarmin(badgeIdArray = []) {
   return badgeJson;
 }
 
+async function fetchBadgesFromGarmin(badgeIdArray = []) {
+  let badgeJson = [];
+  for (const item of badgeIdArray) {
+    fetchOneBadgeFromGarmin(item.badgeNo, badgeJson);
+  }
+ 
+  //Wait for all requests to return the result
+  while(badgeJson.length < badgeIdArray.length) {
+    //Sleep to prevent too much looping
+    await new Promise(r => setTimeout(r, 1000));
+  }
+
+  return badgeJson;
+}
+
 function createGarminBadgesJson(json = [], update_key = '') {
   let newJson = [];
     
@@ -177,7 +192,8 @@ function createGarminBadgesJson(json = [], update_key = '') {
       "earned_date": badge.badgeEarnedDate,
       "badgeProgressValue": badge.badgeProgressValue,
       "badgeTargetValue": badge.badgeTargetValue,
-      "badgeUnit": unitArray[badge.badgeUnitId]
+      "badgeUnit": unitArray[badge.badgeUnitId],
+      "userJoined": badge.userJoined
     }
     newJson.push(newBadge);
   });
