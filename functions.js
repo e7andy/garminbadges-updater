@@ -79,7 +79,8 @@ async function updateButtonClicked() {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'di-backend': 'connectapi.garmin.com',
-          'nk': 'NT'
+          'nk': 'NT',
+          'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
         },
       }).catch((error) => {
         alertUser("Fetching badge data failed. Are you logged in to Garmin Connect?");
@@ -145,7 +146,8 @@ async function fetchBadgesFromGarmin(badgeIdArray = []) {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'di-backend': 'connectapi.garmin.com',
-        'nk': 'NT'
+        'nk': 'NT',
+        'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
       },
     });
     const garminBadgeJson = await garminBadgeResponse.json();
