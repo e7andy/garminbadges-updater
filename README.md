@@ -12,7 +12,7 @@ Updates [Garmin Badge Database](https://garminbadges.com/) with your badge and c
 Every time you got updated badge or challenge data in Garmin Connect you just press the Update button and Garmin Badge Database will be updated with your latest data.
 
 ## How to test and debug
-1. Go to [Chrome Extension)(chrome://extensions/)
+1. Go to [Chrome Extension](chrome://extensions/)
 2. Click Load Unpacked
 3. Select the local folder with the extension code
 4. Disable the production extension to hide it from Chrome
