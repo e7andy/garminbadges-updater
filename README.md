@@ -19,7 +19,10 @@ Every time you got updated badge or challenge data in Garmin Connect you just pr
 5. Pin the local extension to make it visiable in the extension bar
 
 ## How to publish in the Chrome Web Store
-1. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
-2. Sign in to the developer account.
-3. Click the Add new item button.
-4. Click Choose file > your zip file > Upload. If your item's manifest and ZIP file are valid, you can edit your item on the next page.
+1. Test the extension locally.
+2. Review the manifest and set the new version.
+3. Zip the files (not the folder) and make sure the manifest is in the root.
+4. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+5. Sign in to the developer account.
+6. Click the **extension** to update > **Package** menu item > **Upload new package** button.
+7. Click Choose file > your zip file > Upload. If your item's manifest and ZIP file are valid, you can edit your item on the next page.
