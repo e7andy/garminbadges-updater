@@ -27,7 +27,7 @@ button {
 }
 
 .data_button {
-  width: 60px;
+  width: 120px;
 }
 
 label {
@@ -55,3 +55,11 @@ input[type=text], input[type=email], input[type=password] {
 }
 
 .text-muted { color: #6c757d !important }
+
+.step-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+  color: #333;
+}
