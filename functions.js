@@ -137,7 +137,7 @@ async function updateButtonClicked() {
   });
 }
 
-async function fetchOneBadgeFromGarmin(badgeNo, badgeJson) {
+async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson) {
   const garminBadgeResponse = await fetch('https://connect.garmin.com/badge-service/badge/detail/v2/' + badgeNo, {
     method: 'GET',
     headers: {
@@ -149,13 +149,30 @@ async function fetchOneBadgeFromGarmin(badgeNo, badgeJson) {
     },
   });
   const garminBadgeJson = await garminBadgeResponse.json();
+  if(badgeUuid) {
+    const garminBadgeResponseUuid = await fetch('https://connect.garmin.com/badgechallenge-service/badgeChallenge/' + badgeUuid, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'di-backend': 'connectapi.garmin.com',
+        'nk': 'NT',
+        'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
+      },
+    });
+    const garminBadgeJsonUuid = await garminBadgeResponseUuid.json();
+    if(garminBadgeJsonUuid.hasOwnProperty("joinDateLocal") && garminBadgeJsonUuid.joinDateLocal) {
+      garminBadgeJson.joinDateLocal = garminBadgeJsonUuid.joinDateLocal;
+    }
+  }
   badgeJson.push(garminBadgeJson);
 }
 
 async function fetchBadgesFromGarmin(badgeIdArray = []) {
+  console.log("GarminBadges - Don't worry about the 404 errors in the console. That is to be expected during the fetching of data.")
   let badgeJson = [];
   for (const item of badgeIdArray) {
-    fetchOneBadgeFromGarmin(item.badgeNo, badgeJson);
+    fetchOneBadgeFromGarmin(item.badgeNo, item.badgeUuid, badgeJson);
   }
  
   //Wait for all requests to return the result
@@ -169,6 +186,8 @@ async function fetchBadgesFromGarmin(badgeIdArray = []) {
 
 function createGarminBadgesJson(json = [], update_key = '') {
   let newJson = [];
+
+  var manifestData = chrome.runtime.getManifest();
     
   const unitArray = {
     1: "mi_km",
@@ -189,7 +208,9 @@ function createGarminBadgesJson(json = [], update_key = '') {
       "badgeProgressValue": badge.badgeProgressValue,
       "badgeTargetValue": badge.badgeTargetValue,
       "badgeUnit": unitArray[badge.badgeUnitId],
-      "userJoined": badge.userJoined
+      "userJoined": badge.userJoined,
+      "joinDateLocal": badge.joinDateLocal,
+      "createdBy": "Browser extension v." + manifestData.version
     }
     newJson.push(newBadge);
   });
