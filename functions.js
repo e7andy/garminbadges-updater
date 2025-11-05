@@ -37,6 +37,7 @@ async function updateButtonClicked() {
   let shouldOpenGarminbadgesMainPage;
   let shouldOpenGarminbadgesChallengePage;
   let shouldShowSuccessfulAlert;
+  let csrfToken;
 
   chrome.storage.sync.get({
     username: '',
@@ -55,6 +56,9 @@ async function updateButtonClicked() {
     if(!isOptionsValid(username, email)) {
       openOptionsPage();
     } else {
+      //Get csrf token from meta tag
+      csrfToken = document.querySelector("meta[name='csrf-token']").content
+
 
       //Fetch update key for username and email from garminbadges.com
       const gbUserResponse = await fetch('https://garminbadges.com/api/index.php/user/updatekey?username='+username+'&email='+email, {
@@ -73,13 +77,14 @@ async function updateButtonClicked() {
       let userId = gbUserContent.id;
 
       //Fetch earned json from Garmin
-      const garminEarnedResponse = await fetch('https://connect.garmin.com/badge-service/badge/earned', {
+      const garminEarnedResponse = await fetch('https://connect.garmin.com/gc-api/badge-service/badge/earned', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'di-backend': 'connectapi.garmin.com',
           'nk': 'NT',
+          'connect-csrf-token': csrfToken,
           'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
         },
       }).catch((error) => {
@@ -105,7 +110,7 @@ async function updateButtonClicked() {
 
       //Fetch badge data for each badgeId
       const badgeIdsToFetch = gbBadgesToFetch;
-      const garminBadgeJsonArray = await fetchBadgesFromGarmin(badgeIdsToFetch);
+      const garminBadgeJsonArray = await fetchBadgesFromGarmin(badgeIdsToFetch, csrfToken);
 
       //Create new badge json
       const garminBadgeJson = createGarminBadgesJson(garminBadgeJsonArray, update_key);
@@ -137,26 +142,28 @@ async function updateButtonClicked() {
   });
 }
 
-async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson) {
-  const garminBadgeResponse = await fetch('https://connect.garmin.com/badge-service/badge/detail/v2/' + badgeNo, {
+async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson, csrfToken) {
+  const garminBadgeResponse = await fetch('https://connect.garmin.com/gc-api/badge-service/badge/detail/v2/' + badgeNo, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'di-backend': 'connectapi.garmin.com',
       'nk': 'NT',
+      'connect-csrf-token': csrfToken,
       'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
     },
   });
   const garminBadgeJson = await garminBadgeResponse.json();
   if(badgeUuid) {
-    const garminBadgeResponseUuid = await fetch('https://connect.garmin.com/badgechallenge-service/badgeChallenge/' + badgeUuid, {
+    const garminBadgeResponseUuid = await fetch('https://connect.garmin.com/gc-api/badgechallenge-service/badgeChallenge/' + badgeUuid, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'di-backend': 'connectapi.garmin.com',
         'nk': 'NT',
+        'connect-csrf-token': csrfToken,
         'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
       },
     });
@@ -168,11 +175,11 @@ async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson) {
   badgeJson.push(garminBadgeJson);
 }
 
-async function fetchBadgesFromGarmin(badgeIdArray = []) {
+async function fetchBadgesFromGarmin(badgeIdArray = [], csrfToken) {
   console.log("GarminBadges - Don't worry about the 404 errors in the console. That is to be expected during the fetching of data.")
   let badgeJson = [];
   for (const item of badgeIdArray) {
-    fetchOneBadgeFromGarmin(item.badgeNo, item.badgeUuid, badgeJson);
+    fetchOneBadgeFromGarmin(item.badgeNo, item.badgeUuid, badgeJson, csrfToken);
   }
  
   //Wait for all requests to return the result
