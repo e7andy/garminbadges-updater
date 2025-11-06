@@ -84,9 +84,7 @@ async function updateButtonClicked() {
           'Content-Type': 'application/json',
           'di-backend': 'connectapi.garmin.com',
           'nk': 'NT',
-          'connect-csrf-token': csrfToken,
-          'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
-        },
+          'connect-csrf-token': csrfToken        },
       }).catch((error) => {
         alertUser("Fetching badge data failed. Are you logged in to Garmin Connect?");
         throw new Error("Error: Fetch of badge data failed.");
@@ -150,8 +148,7 @@ async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson, csrfToken)
       'Content-Type': 'application/json',
       'di-backend': 'connectapi.garmin.com',
       'nk': 'NT',
-      'connect-csrf-token': csrfToken,
-      'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
+      'connect-csrf-token': csrfToken
     },
   });
   const garminBadgeJson = await garminBadgeResponse.json();
@@ -163,8 +160,7 @@ async function fetchOneBadgeFromGarmin(badgeNo, badgeUuid, badgeJson, csrfToken)
         'Content-Type': 'application/json',
         'di-backend': 'connectapi.garmin.com',
         'nk': 'NT',
-        'connect-csrf-token': csrfToken,
-        'Authorization':'Bearer ' + JSON.parse(localStorage.token).access_token
+        'connect-csrf-token': csrfToken
       },
     });
     const garminBadgeJsonUuid = await garminBadgeResponseUuid.json();
