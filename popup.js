@@ -17,9 +17,29 @@ function showProfileLinks(username) {
   profileLinks.classList.remove('hidden');
 }
 
-// Load stored username immediately on popup open
+// Load username on popup open — use cache if available, otherwise fetch from API
 chrome.storage.local.get({ username: '' }, ({ username }) => {
-  if (username) showProfileLinks(username);
+  if (username) {
+    showProfileLinks(username);
+    return;
+  }
+  // No cached username — fetch from API if an API key is configured
+  chrome.storage.sync.get({ apiKey: '', apiBase: 'https://garminbadges.com/api' }, ({ apiKey, apiBase }) => {
+    if (!apiKey) return;
+    chrome.runtime.sendMessage({
+      type: 'fetch',
+      url: `${apiBase}/user`,
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
+    }, (resp) => {
+      if (resp?.ok) {
+        const name = resp.data?.username ?? resp.data?.name ?? null;
+        if (name) {
+          chrome.storage.local.set({ username: name });
+          showProfileLinks(name);
+        }
+      }
+    });
+  });
 });
 
 function setStatus(state, text) {
