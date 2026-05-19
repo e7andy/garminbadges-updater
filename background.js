@@ -40,6 +40,14 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   // ── Fetch proxy (used by injected content scripts for cross-origin calls) ──
   if (msg.type === 'fetch') {
+    const ALLOWED_HOSTS = ['garminbadges.com', 'localhost'];
+    let urlHost;
+    try { urlHost = new URL(msg.url).hostname; } catch { urlHost = ''; }
+    if (!ALLOWED_HOSTS.some(h => urlHost === h || urlHost.endsWith('.' + h))) {
+      sendResponse({ ok: false, status: 0, error: 'URL not in allowlist' });
+      return true;
+    }
+
     fetch(msg.url, {
       method:  msg.method || 'GET',
       headers: msg.headers || {},

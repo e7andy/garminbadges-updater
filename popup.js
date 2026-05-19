@@ -63,14 +63,23 @@ function appendLog(text) {
   logEl.scrollTop = logEl.scrollHeight;
 }
 
+function makeResultRow(label, val, muted = false) {
+  const row = document.createElement('div');
+  row.className = muted ? 'result-row muted' : 'result-row';
+  const l = document.createElement('span'); l.className = 'result-label'; l.textContent = label;
+  const v = document.createElement('span'); v.className = 'result-val';   v.textContent = val;
+  row.append(l, v);
+  return row;
+}
+
 function showResult(result) {
   resultEl.classList.remove('hidden');
-  resultEl.innerHTML = `
-    <div class="result-row"><span class="result-label">Added</span><span class="result-val">${result.added ?? 0}</span></div>
-    <div class="result-row"><span class="result-label">Updated</span><span class="result-val">${result.updated ?? 0}</span></div>
-    <div class="result-row"><span class="result-label">Unchanged</span><span class="result-val">${result.unchanged ?? 0}</span></div>
-    ${result.skipped ? `<div class="result-row muted"><span class="result-label">Skipped</span><span class="result-val">${result.skipped}</span></div>` : ''}
-  `;
+  resultEl.replaceChildren(
+    makeResultRow('Added',     result.added     ?? 0),
+    makeResultRow('Updated',   result.updated   ?? 0),
+    makeResultRow('Unchanged', result.unchanged ?? 0),
+    ...(result.skipped ? [makeResultRow('Skipped', result.skipped, true)] : []),
+  );
   if (result.username) showProfileLinks(result.username);
 }
 
