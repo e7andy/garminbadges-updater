@@ -77,10 +77,11 @@
     const relevantIds  = new Set(challengeIds);
 
     try {
-      const resp = await fetch(`${opts.apiBase}/badges`);
-      if (resp.ok) {
-        const siteBadges = await resp.json();
-        for (const b of siteBadges) {
+      const resp = await new Promise(resolve =>
+        chrome.runtime.sendMessage({ type: 'fetch', url: `${opts.apiBase}/badges` }, resolve)
+      );
+      if (resp?.ok) {
+        for (const b of resp.data) {
           if (earnedIds.has(b.id) && !b.end_date && b.target_value !== null && b.repeatable) {
             relevantIds.add(b.id);
           }
@@ -163,41 +164,44 @@
       });
     }
 
-    // 6. Upload
+    // 6. Upload via background (avoids mixed-content block on HTTPS pages)
     progress(`Uploading ${records.length} records…`);
-    const uploadResp = await fetch(`${opts.apiBase}/sync`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${opts.apiKey}`,
-        'Content-Type':  'application/json',
-        'Accept':        'application/json',
-      },
-      body: JSON.stringify({ user_badges: records }),
-    });
 
-    if (!uploadResp.ok) {
-      const status = uploadResp.status;
-      if (status === 401) fail('Invalid API key. Check your key in Settings.');
-      else if (status === 422) fail('Validation error — check your API key and try again.');
-      else fail(`Upload failed (${status}). Please try again.`);
-      return;
+    function bgFetch(url, method, headers, body) {
+      return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ type: 'fetch', url, method, headers, body }, resolve);
+      });
     }
 
-    const result = await uploadResp.json();
+    const authHeaders = {
+      'Authorization': `Bearer ${opts.apiKey}`,
+      'Content-Type':  'application/json',
+      'Accept':        'application/json',
+    };
+
+    const upload = await bgFetch(
+      `${opts.apiBase}/sync`, 'POST', authHeaders,
+      JSON.stringify({ user_badges: records })
+    );
+
+    if (!upload.ok) {
+      if (upload.status === 401) fail('Invalid API key. Check your key in Settings.');
+      else if (upload.status === 422) fail('Validation error — check your API key and try again.');
+      else if (upload.status === 0) fail(`Could not reach ${opts.apiBase}. Check the API URL in Settings.`);
+      else fail(`Upload failed (${upload.status}). Please try again.`);
+      return;
+    }
 
     // Fetch username so the popup can link to the profile and challenges pages
     let username = null;
     try {
-      const userResp = await fetch(`${opts.apiBase}/user`, {
-        headers: { 'Authorization': `Bearer ${opts.apiKey}`, 'Accept': 'application/json' },
+      const userResp = await bgFetch(`${opts.apiBase}/user`, 'GET', {
+        'Authorization': `Bearer ${opts.apiKey}`, 'Accept': 'application/json',
       });
-      if (userResp.ok) {
-        const user = await userResp.json();
-        username = user.username ?? user.name ?? null;
-      }
+      if (userResp.ok) username = userResp.data?.username ?? userResp.data?.name ?? null;
     } catch (_) {}
 
-    done({ ...result, username });
+    done({ ...upload.data, username });
 
   } catch (err) {
     fail(err.message || 'An unexpected error occurred.');
