@@ -103,73 +103,37 @@
     const records = [];
     const seen    = new Set();
 
-    // Earned records — group by badge to detect when Garmin returns multiple
-    // earns all with earnedNumber=1. Assign sequential numbers by date so
-    // each earn is stored as a distinct row.
-    const badgeGroups = {};
+    // Earned records — badge/earned returns one record per earn.
+    // badgeEarnedNumber is the ordinal of that specific earn (1st, 2nd, 3rd…).
     for (const b of earned) {
-      if (!b.badgeId) continue;
-      (badgeGroups[b.badgeId] ??= []).push(b);
-    }
-    for (const [badgeIdStr, badgeRecords] of Object.entries(badgeGroups)) {
-      const badgeId = parseInt(badgeIdStr);
-      badgeRecords.sort((a, b) =>
-        (a.badgeEarnedDate || '') < (b.badgeEarnedDate || '') ? -1 : 1
-      );
-      const nums = new Set(badgeRecords.map(b => parseInt(b.earnedNumber) || 1));
-      const allSameNum = badgeRecords.length > 1 && nums.size === 1;
-
-      badgeRecords.forEach((b, idx) => {
-        const num = allSameNum ? idx + 1 : (parseInt(b.earnedNumber) || 1);
-        const key = `${badgeId}:${num}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        records.push({
-          badge_id:       badgeId,
-          earned_number:  num,
-          earned_date:    b.badgeEarnedDate   || null,
-          progress_value: b.badgeProgressValue ?? null,
-          assoc_type_id:  b.badgeAssocTypeId  ?? null,
-          assoc_data_id:  b.badgeAssocDataId  ? String(b.badgeAssocDataId) : null,
-          create_date:    b.badgeCreateDate || b.badgeEarnedDate || null,
-        });
+      const badgeId = b.badgeId;
+      if (!badgeId) continue;
+      const num = parseInt(b.badgeEarnedNumber) || parseInt(b.earnedNumber) || 1;
+      const key = `${badgeId}:${num}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      records.push({
+        badge_id:       badgeId,
+        earned_number:  num,
+        earned_date:    b.badgeEarnedDate   || null,
+        progress_value: b.badgeProgressValue ?? null,
+        assoc_type_id:  b.badgeAssocTypeId  ?? null,
+        assoc_data_id:  b.badgeAssocDataId  ? String(b.badgeAssocDataId) : null,
+        create_date:    b.badgeCreateDate || b.badgeEarnedDate || null,
       });
     }
 
     // In-progress records from v3 detail
     for (const [idStr, detail] of Object.entries(details)) {
-      const badgeId      = parseInt(idStr);
-      const lastNum      = parseInt(detail.badgeEarnedNumber) || 0;
-      const lastEarnDate = detail.badgeEarnedDate || null;
-
-      // Add a correctly-numbered earned record so max(earned_number) in the DB
-      // reflects the real repeat count. Garmin's earned endpoint always returns
-      // earnedNumber=1 for every earn of a repeatable badge; badgeEarnedNumber
-      // from the v3 detail is the authoritative total.
-      if (lastNum > 0 && lastEarnDate) {
-        const earnedKey = `${badgeId}:${lastNum}`;
-        if (!seen.has(earnedKey)) {
-          seen.add(earnedKey);
-          records.push({
-            badge_id:       badgeId,
-            earned_number:  lastNum,
-            earned_date:    lastEarnDate,
-            progress_value: null,
-            assoc_type_id:  detail.badgeAssocTypeId ?? null,
-            assoc_data_id:  detail.badgeAssocDataId ? String(detail.badgeAssocDataId) : null,
-            create_date:    detail.createDate || lastEarnDate || null,
-          });
-        }
-      }
-
-      // Add an in-progress record when actively working toward the next earn.
+      const badgeId  = parseInt(idStr);
+      const lastNum  = parseInt(detail.badgeEarnedNumber) || 0;
       const progress = detail.badgeProgressValue;
       if (progress == null) continue;
-      const target   = detail.badgeTargetValue;
+      const target     = detail.badgeTargetValue;
       const earnedDate = detail.badgeEarnedDate;
       if (earnedDate && target != null && parseFloat(progress) >= parseFloat(target)) continue;
-      const num      = lastNum + 1;
-      const key      = `${badgeId}:${num}`;
+      const num = lastNum + 1;
+      const key = `${badgeId}:${num}`;
       if (seen.has(key)) continue;
       seen.add(key);
       records.push({
