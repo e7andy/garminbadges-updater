@@ -198,7 +198,10 @@
       const userResp = await bgFetch(`${opts.apiBase}/user`, 'GET', {
         'Authorization': `Bearer ${opts.apiKey}`, 'Accept': 'application/json',
       });
-      if (userResp.ok) username = userResp.data?.username ?? userResp.data?.name ?? null;
+      if (userResp.ok) {
+        username = userResp.data?.username ?? userResp.data?.name ?? null;
+        if (username) chrome.storage.local.set({ username });
+      }
     } catch (_) {}
 
     done({ ...upload.data, username });

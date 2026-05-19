@@ -1,9 +1,26 @@
-const syncBtn    = document.getElementById('sync-btn');
-const btnText    = document.getElementById('btn-text');
-const statusDot  = document.getElementById('status-dot');
-const statusText = document.getElementById('status-text');
-const logEl      = document.getElementById('log');
-const resultEl   = document.getElementById('result');
+const syncBtn       = document.getElementById('sync-btn');
+const btnText       = document.getElementById('btn-text');
+const statusDot     = document.getElementById('status-dot');
+const statusText    = document.getElementById('status-text');
+const logEl         = document.getElementById('log');
+const resultEl      = document.getElementById('result');
+const profileLinks  = document.getElementById('profile-links');
+const linkProfile   = document.getElementById('link-profile');
+const linkChallenges= document.getElementById('link-challenges');
+
+const SITE = 'https://garminbadges.com';
+
+function showProfileLinks(username) {
+  if (!username) return;
+  linkProfile.href    = `${SITE}/users/${username}`;
+  linkChallenges.href = `${SITE}/users/${username}/challenges`;
+  profileLinks.classList.remove('hidden');
+}
+
+// Load stored username immediately on popup open
+chrome.storage.local.get({ username: '' }, ({ username }) => {
+  if (username) showProfileLinks(username);
+});
 
 function setStatus(state, text) {
   statusDot.className = `status-dot ${state}`;
@@ -21,19 +38,13 @@ function appendLog(text) {
 
 function showResult(result) {
   resultEl.classList.remove('hidden');
-  const siteBase = 'https://garminbadges.com';
-  const links = result.username ? `
-    <div class="result-links">
-      <a href="${siteBase}/users/${result.username}" target="_blank" class="result-link">Profile</a>
-      <a href="${siteBase}/users/${result.username}/challenges" target="_blank" class="result-link">Challenges</a>
-    </div>` : '';
   resultEl.innerHTML = `
     <div class="result-row"><span class="result-label">Added</span><span class="result-val">${result.added ?? 0}</span></div>
     <div class="result-row"><span class="result-label">Updated</span><span class="result-val">${result.updated ?? 0}</span></div>
     <div class="result-row"><span class="result-label">Unchanged</span><span class="result-val">${result.unchanged ?? 0}</span></div>
     ${result.skipped ? `<div class="result-row muted"><span class="result-label">Skipped</span><span class="result-val">${result.skipped}</span></div>` : ''}
-    ${links}
   `;
+  if (result.username) showProfileLinks(result.username);
 }
 
 function setSyncing(on) {
