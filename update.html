@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Garmin Badge Database — Extension Updated</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px 64px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e0e0e0;
+      width: 100%;
+      max-width: 560px;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .card-header {
+      background: #1a73e8;
+      color: #fff;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .card-header img {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .card-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .card-header p {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    /* Body */
+    .card-body {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .intro {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    /* Section */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #1a73e8;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #333;
+    }
+
+    .step-text a {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .step-text a:hover { text-decoration: underline; }
+
+    /* What's new */
+    .changes {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .change-item {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: 13px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .change-item::before {
+      content: '✓';
+      color: #34a853;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* CTA */
+    .cta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 11px 24px;
+      background: #1a73e8;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    .btn-secondary {
+      display: inline-block;
+      padding: 11px 24px;
+      background: #fff;
+      color: #1a73e8;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1.5px solid #1a73e8;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: #f0f4ff; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <img src="/images/icon_128.png" alt="" />
+      <div>
+        <h1>Extension Updated to v2.0</h1>
+        <p>Garmin Badge Database — Data Sync</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <p class="intro">
+        The Garmin Badge Database has been completely rebuilt. The extension has been updated
+        to match — you will need to create a free account and set your API key before syncing.
+      </p>
+
+      <div>
+        <div class="section-title">What's new</div>
+        <div class="changes">
+          <div class="change-item">New site with profiles, leaderboards, and personal challenge tracking</div>
+          <div class="change-item">Challenge progress synced with current values from Garmin Connect</div>
+          <div class="change-item">Personal calendar feeds for badges and challenges</div>
+          <div class="change-item">Secure API key authentication — no password stored</div>
+          <div class="change-item">Real-time sync progress shown in the extension popup</div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div>
+        <div class="section-title">Getting started</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <a href="https://garminbadges.com/signin" target="_blank">Create a free account</a>
+              at garminbadges.com — sign in with Google or email and password.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              Go to your <a href="https://garminbadges.com/dashboard" target="_blank">Dashboard</a>
+              and copy your <strong>API key</strong>.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              Click the extension icon in your toolbar, open <strong>Settings</strong>,
+              and paste your API key.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              Browse to <a href="https://connect.garmin.com" target="_blank">Garmin Connect</a>,
+              make sure you are logged in, then click <strong>Sync now</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <a href="https://garminbadges.com/signin" target="_blank" class="btn-primary">Create account</a>
+        <a href="https://garminbadges.com/dashboard" target="_blank" class="btn-secondary">Go to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

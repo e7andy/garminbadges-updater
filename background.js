@@ -1,3 +1,10 @@
+// Open the update page on install or upgrade.
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install' || details.reason === 'update') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('update.html') });
+  }
+});
+
 // Relay sync messages to the popup and store current sync state.
 let syncState = { status: 'idle', log: [], result: null };
 
