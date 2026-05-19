@@ -49,9 +49,10 @@ Open the extension and click **Settings**:
 ## How to publish to the Chrome Web Store
 
 1. Test locally and bump the `version` in `manifest.json`.
-2. Zip the extension files — `manifest.json` must be at the zip root (not inside a subfolder).
-3. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
-4. Click the extension → **Package** → **Upload new package** → select your zip.
+2. Update `update.html` with the latest version number and release notes.
+3. Zip the extension files — `manifest.json` must be at the zip root (not inside a subfolder).
+4. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+5. Click the extension → **Package** → **Upload new package** → select your zip.
 
 ## Architecture
 
