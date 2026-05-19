@@ -123,6 +123,29 @@ body {
 .result-label { color: #444; }
 .result-val   { font-weight: 600; color: #222; }
 
+.result-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #c8e6c9;
+}
+
+.result-link {
+  flex: 1;
+  text-align: center;
+  padding: 5px 8px;
+  background: #fff;
+  border: 1px solid #a5d6a7;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a73e8;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.result-link:hover { background: #f0f9f0; }
+
 /* Sync button */
 .sync-btn {
   display: flex;

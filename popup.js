@@ -21,11 +21,18 @@ function appendLog(text) {
 
 function showResult(result) {
   resultEl.classList.remove('hidden');
+  const siteBase = 'https://garminbadges.com';
+  const links = result.username ? `
+    <div class="result-links">
+      <a href="${siteBase}/users/${result.username}" target="_blank" class="result-link">Profile</a>
+      <a href="${siteBase}/users/${result.username}/challenges" target="_blank" class="result-link">Challenges</a>
+    </div>` : '';
   resultEl.innerHTML = `
     <div class="result-row"><span class="result-label">Added</span><span class="result-val">${result.added ?? 0}</span></div>
     <div class="result-row"><span class="result-label">Updated</span><span class="result-val">${result.updated ?? 0}</span></div>
     <div class="result-row"><span class="result-label">Unchanged</span><span class="result-val">${result.unchanged ?? 0}</span></div>
     ${result.skipped ? `<div class="result-row muted"><span class="result-label">Skipped</span><span class="result-val">${result.skipped}</span></div>` : ''}
+    ${links}
   `;
 }
 

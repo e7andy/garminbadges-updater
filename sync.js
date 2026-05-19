@@ -184,7 +184,20 @@
     }
 
     const result = await uploadResp.json();
-    done(result);
+
+    // Fetch username so the popup can link to the profile and challenges pages
+    let username = null;
+    try {
+      const userResp = await fetch(`${opts.apiBase}/user`, {
+        headers: { 'Authorization': `Bearer ${opts.apiKey}`, 'Accept': 'application/json' },
+      });
+      if (userResp.ok) {
+        const user = await userResp.json();
+        username = user.username ?? user.name ?? null;
+      }
+    } catch (_) {}
+
+    done({ ...result, username });
 
   } catch (err) {
     fail(err.message || 'An unexpected error occurred.');
