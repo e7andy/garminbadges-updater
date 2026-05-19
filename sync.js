@@ -82,7 +82,8 @@
       );
       if (resp?.ok) {
         for (const b of resp.data) {
-          if (earnedIds.has(b.id) && !b.end_date && b.target_value !== null && b.repeatable) {
+          // All unlimited repeatable earned badges need v3 detail for accurate repeat count
+          if (earnedIds.has(b.id) && !b.end_date && b.repeatable) {
             relevantIds.add(b.id);
           }
         }
@@ -123,13 +124,36 @@
 
     // In-progress records from v3 detail
     for (const [idStr, detail] of Object.entries(details)) {
-      const badgeId  = parseInt(idStr);
+      const badgeId      = parseInt(idStr);
+      const lastNum      = parseInt(detail.badgeEarnedNumber) || 0;
+      const lastEarnDate = detail.badgeEarnedDate || null;
+
+      // Add a correctly-numbered earned record so max(earned_number) in the DB
+      // reflects the real repeat count. Garmin's earned endpoint always returns
+      // earnedNumber=1 for every earn of a repeatable badge; badgeEarnedNumber
+      // from the v3 detail is the authoritative total.
+      if (lastNum > 0 && lastEarnDate) {
+        const earnedKey = `${badgeId}:${lastNum}`;
+        if (!seen.has(earnedKey)) {
+          seen.add(earnedKey);
+          records.push({
+            badge_id:       badgeId,
+            earned_number:  lastNum,
+            earned_date:    lastEarnDate,
+            progress_value: null,
+            assoc_type_id:  detail.badgeAssocTypeId ?? null,
+            assoc_data_id:  detail.badgeAssocDataId ? String(detail.badgeAssocDataId) : null,
+            create_date:    detail.createDate || lastEarnDate || null,
+          });
+        }
+      }
+
+      // Add an in-progress record when actively working toward the next earn.
       const progress = detail.badgeProgressValue;
       if (progress == null) continue;
       const target   = detail.badgeTargetValue;
       const earnedDate = detail.badgeEarnedDate;
       if (earnedDate && target != null && parseFloat(progress) >= parseFloat(target)) continue;
-      const lastNum  = parseInt(detail.badgeEarnedNumber) || 0;
       const num      = lastNum + 1;
       const key      = `${badgeId}:${num}`;
       if (seen.has(key)) continue;
