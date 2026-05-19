@@ -195,7 +195,7 @@
     // Fetch username so the popup can link to the profile and challenges pages
     let username = null;
     try {
-      const userResp = await bgFetch(`${opts.apiBase}/user`, 'GET', {
+      const userResp = await bgFetch(`${opts.apiBase}/sync/whoami`, 'GET', {
         'Authorization': `Bearer ${opts.apiKey}`, 'Accept': 'application/json',
       });
       if (userResp.ok) {

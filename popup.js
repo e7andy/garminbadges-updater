@@ -29,7 +29,7 @@ async function loadUsername() {
   if (!apiKey) return;
 
   try {
-    const resp = await fetch(`${apiBase}/user`, {
+    const resp = await fetch(`${apiBase}/sync/whoami`, {
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
     });
     if (resp.ok) {
