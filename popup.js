@@ -21,33 +21,29 @@ function showProfileLinks(username) {
 // (The popup runs in the extension context and can fetch any URL in host_permissions.)
 async function loadUsername() {
   const { username } = await chrome.storage.local.get({ username: '' });
-  appendLog(`[debug] cached username: "${username}"`);
   if (username) { showProfileLinks(username); return; }
 
   const { apiKey, apiBase } = await chrome.storage.sync.get({
     apiKey: '', apiBase: 'https://garminbadges.com/api',
   });
-  appendLog(`[debug] apiKey set: ${!!apiKey}, apiBase: ${apiBase}`);
   if (!apiKey) return;
 
   try {
-    const url = `${apiBase}/user`;
-    appendLog(`[debug] fetching ${url}`);
-    const resp = await fetch(url, {
+    const resp = await fetch(`${apiBase}/user`, {
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
     });
-    appendLog(`[debug] response status: ${resp.status}`);
     if (resp.ok) {
       const user = await resp.json();
-      appendLog(`[debug] user: ${JSON.stringify(user).slice(0, 80)}`);
       const name = user.username ?? user.name ?? null;
       if (name) {
         await chrome.storage.local.set({ username: name });
         showProfileLinks(name);
       }
+    } else if (resp.status === 401) {
+      setStatus('error', 'Invalid API key — check Settings');
     }
   } catch (e) {
-    appendLog(`[debug] fetch error: ${e.message}`);
+    // Network error — silently ignore, links just won't appear
   }
 }
 
