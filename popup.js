@@ -17,30 +17,35 @@ function showProfileLinks(username) {
   profileLinks.classList.remove('hidden');
 }
 
-// Load username on popup open — use cache if available, otherwise fetch from API
-chrome.storage.local.get({ username: '' }, ({ username }) => {
-  if (username) {
-    showProfileLinks(username);
-    return;
-  }
-  // No cached username — fetch from API if an API key is configured
-  chrome.storage.sync.get({ apiKey: '', apiBase: 'https://garminbadges.com/api' }, ({ apiKey, apiBase }) => {
-    if (!apiKey) return;
-    chrome.runtime.sendMessage({
-      type: 'fetch',
-      url: `${apiBase}/user`,
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
-    }, (resp) => {
-      if (resp?.ok) {
-        const name = resp.data?.username ?? resp.data?.name ?? null;
-        if (name) {
-          chrome.storage.local.set({ username: name });
-          showProfileLinks(name);
-        }
-      }
-    });
+// Load username on popup open — use cache if available, otherwise fetch directly from API
+// (The popup runs in the extension context and can fetch any URL in host_permissions.)
+async function loadUsername() {
+  const { username } = await chrome.storage.local.get({ username: '' });
+  if (username) { showProfileLinks(username); return; }
+
+  const { apiKey, apiBase } = await chrome.storage.sync.get({
+    apiKey: '', apiBase: 'https://garminbadges.com/api',
   });
-});
+  if (!apiKey) return;
+
+  try {
+    const resp = await fetch(`${apiBase}/user`, {
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
+    });
+    if (resp.ok) {
+      const user = await resp.json();
+      const name = user.username ?? user.name ?? null;
+      if (name) {
+        await chrome.storage.local.set({ username: name });
+        showProfileLinks(name);
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch username:', e);
+  }
+}
+
+loadUsername();
 
 function setStatus(state, text) {
   statusDot.className = `status-dot ${state}`;
