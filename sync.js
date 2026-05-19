@@ -103,22 +103,36 @@
     const records = [];
     const seen    = new Set();
 
-    // Earned records
+    // Earned records — group by badge to detect when Garmin returns multiple
+    // earns all with earnedNumber=1. Assign sequential numbers by date so
+    // each earn is stored as a distinct row.
+    const badgeGroups = {};
     for (const b of earned) {
-      const badgeId = b.badgeId;
-      if (!badgeId) continue;
-      const num = parseInt(b.earnedNumber) || 1;
-      const key = `${badgeId}:${num}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      records.push({
-        badge_id:       badgeId,
-        earned_number:  num,
-        earned_date:    b.badgeEarnedDate   || null,
-        progress_value: b.badgeProgressValue ?? null,
-        assoc_type_id:  b.badgeAssocTypeId  ?? null,
-        assoc_data_id:  b.badgeAssocDataId  ? String(b.badgeAssocDataId) : null,
-        create_date:    b.badgeCreateDate || b.badgeEarnedDate || null,
+      if (!b.badgeId) continue;
+      (badgeGroups[b.badgeId] ??= []).push(b);
+    }
+    for (const [badgeIdStr, badgeRecords] of Object.entries(badgeGroups)) {
+      const badgeId = parseInt(badgeIdStr);
+      badgeRecords.sort((a, b) =>
+        (a.badgeEarnedDate || '') < (b.badgeEarnedDate || '') ? -1 : 1
+      );
+      const nums = new Set(badgeRecords.map(b => parseInt(b.earnedNumber) || 1));
+      const allSameNum = badgeRecords.length > 1 && nums.size === 1;
+
+      badgeRecords.forEach((b, idx) => {
+        const num = allSameNum ? idx + 1 : (parseInt(b.earnedNumber) || 1);
+        const key = `${badgeId}:${num}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        records.push({
+          badge_id:       badgeId,
+          earned_number:  num,
+          earned_date:    b.badgeEarnedDate   || null,
+          progress_value: b.badgeProgressValue ?? null,
+          assoc_type_id:  b.badgeAssocTypeId  ?? null,
+          assoc_data_id:  b.badgeAssocDataId  ? String(b.badgeAssocDataId) : null,
+          create_date:    b.badgeCreateDate || b.badgeEarnedDate || null,
+        });
       });
     }
 
