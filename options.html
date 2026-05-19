@@ -1,36 +1,40 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <div class="container">
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="options-body">
+
+  <div class="options-card">
+    <header class="options-header">
+      <img src="/images/icon_48.png" alt="" class="options-logo" />
       <div>
-          <p>Enter your username and email address for <a href="https://garminbadges.com" target="_blank">garminbadges.com</a></p>
-          <p><small>(If you don't have a previous account at garminbadges.com, one will be created with the username and email address you enter. Passwords are not used.)</small></p>
+        <div class="options-title">Garmin Badge Database</div>
+        <div class="options-subtitle">Settings</div>
       </div>
-      <div class="form-group">
-        <label for="displayname">Username</label>
-        <input type="text" required class="form-control" id="displayname" name="displayname" aria-describedby="displaynameHelp" placeholder="Enter username" data-toggle="tooltip" data-placement="top" title="Do not use your email address as username. It is displayed publicly on the site.">
-        <small id="displaynameHelp" class="form-text text-muted">Username is displayed publicly. Avoid using your email address.</small>
+    </header>
 
-        <label for="email">Email address</label>
-        <input type="email" required class="form-control" id="emailAddress" name="email" aria-describedby="emailHelp" placeholder="Enter email">
-        <small id="emailHelp" class="form-text text-muted">Email will not be displayed and is only for user identification if you would like to delete your data and to protect your username so no one else can use it.</small>
-
-        <label for="shouldOpenGarminbadgesMainPage">Open main page at garminbadges.com after update?</label>
-        <input type="checkbox" required class="form-control" id="shouldOpenGarminbadgesMainPage" name="shouldOpenGarminbadgesMainPage" checked>
-
-        <label for="shouldOpenGarminbadgesChallengePage">Open challenge page at garminbadges.com after update?</label>
-        <input type="checkbox" required class="form-control" id="shouldOpenGarminbadgesChallengePage" name="shouldOpenGarminbadgesChallengePage">
-
-        <label for="shouldShowSuccessfulAlert">Show message after successful update?</label>
-        <input type="checkbox" required class="form-control" id="shouldShowSuccessfulAlert" name="shouldShowSuccessfulAlert" aria-describedby="shouldShowSuccessfulAlertHelp" checked>
-        <small id="shouldShowSuccessfulAlertHelp" class="form-text text-muted">After successful update a message is displayed. Uncheck to disable.</small>
+    <div class="options-form">
+      <div class="field">
+        <label for="apiKey">API key</label>
+        <input type="password" id="apiKey" placeholder="Paste your API key here" autocomplete="off" spellcheck="false" />
+        <small>Find your API key on the <a href="https://garminbadges.com/dashboard" target="_blank">Dashboard</a> page after signing in.</small>
       </div>
-      <button id="saveButton">Save</button>
-      <div class="status" id="status"></div>
+
+      <div class="field">
+        <label for="apiBase">API URL</label>
+        <input type="url" id="apiBase" placeholder="https://garminbadges.com/api" />
+        <small>Only change this for local development.</small>
+      </div>
     </div>
-  </body>
+
+    <div class="options-actions">
+      <button id="save-btn" class="save-btn">Save</button>
+      <span id="save-status" class="save-status"></span>
+    </div>
+  </div>
+
   <script src="options.js"></script>
+</body>
 </html>

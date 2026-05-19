@@ -1,57 +1,300 @@
-.container {
-    width: 30rem;
-    padding-right: 15px;
-    padding-left: 15px;
-    padding-bottom: 15px;
+/* ── Reset ───────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  color: #222;
+  background: #f0f4ff;
 }
 
-.status {
-  height: 10px;
+/* ── Popup ───────────────────────────────────────────────────────────────────── */
+
+.popup-body {
+  width: 300px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
 }
 
-button {
-  height: 30px;
-  outline: none;
-  border-radius: 2px;
+.popup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  background: #1a73e8;
+  color: #fff;
 }
 
-.fetch_data_button {
-  width: 30rem;
-  outline: none;
-  margin: 5px;
-  border-radius: 2px;
-  color:  white;
-  font-weight: bold;
-  background-color: #3aa757;
-  border: 1px;
+.popup-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
-.data_button {
-  width: 60px;
+.popup-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.popup-subtitle {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
+.popup-main {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Status row */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.status-dot.idle    { background: #bbb; }
+.status-dot.syncing { background: #fbbc04; animation: pulse 1.2s ease-in-out infinite; }
+.status-dot.done    { background: #34a853; }
+.status-dot.error   { background: #ea4335; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.status-text {
+  font-size: 12px;
+  color: #444;
+  font-weight: 500;
+}
+
+/* Log */
+.log {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 8px 10px;
+  max-height: 100px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.log-line {
+  font-size: 11px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Result */
+.result {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.result-row.muted { opacity: 0.6; }
+.result-label { color: #444; }
+.result-val   { font-weight: 600; color: #222; }
+
+/* Sync button */
+.sync-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 9px 16px;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+.sync-btn:hover:not(:disabled)    { opacity: 0.9; }
+.sync-btn:disabled, .sync-btn.syncing { background: #aaa; cursor: default; }
+
+.btn-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.popup-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  font-size: 11px;
+  color: #888;
+}
+
+.footer-sep { color: #ccc; }
+
+.footer-link {
+  color: #1a73e8;
+  text-decoration: none;
+}
+.footer-link:hover { text-decoration: underline; }
+
+.footer-btn {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+}
+.footer-btn:hover { text-decoration: underline; }
+
+/* Utility */
+.hidden { display: none !important; }
+
+/* ── Options ─────────────────────────────────────────────────────────────────── */
+
+.options-body {
+  background: #f0f4ff;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.options-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.options-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #1a73e8;
+  color: #fff;
+}
+
+.options-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.options-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.options-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.options-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 label {
-  display: inline-block;
-  margin-bottom: .5rem;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
 }
 
-.form-group {
-  maring-bottom: 1rem;
+input[type=password],
+input[type=url],
+input[type=text] {
+  padding: 8px 10px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #222;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+input:focus { border-color: #1a73e8; }
+
+small {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
 }
 
-.form-control {
-  padding: .375rem .75rem;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
+small a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+small a:hover { text-decoration: underline; }
+
+.options-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px 20px;
 }
 
-input[type=text], input[type=email], input[type=password] {
-  width: 30rem;
+.save-btn {
+  padding: 8px 20px;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
+.save-btn:hover { opacity: 0.9; }
 
-.form-text {
-  display: block;
-    margin-bottom: .5rem;
+.save-status {
+  font-size: 12px;
 }
-
-.text-muted { color: #6c757d !important }
+.save-status.success { color: #34a853; }
+.save-status.error   { color: #ea4335; }
