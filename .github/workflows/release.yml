@@ -1,0 +1,99 @@
+name: Release Extension
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 2.1.0) — leave blank to auto-increment patch'
+        required: false
+        type: string
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ -n "${{ inputs.version }}" ]]; then
+            # Manual dispatch with an explicit version
+            VERSION="${{ inputs.version }}"
+
+          else
+            # Auto-increment patch from latest semver tag.
+            # If no tags exist yet, use the version in manifest.json as the base.
+            LATEST=$(git tag --sort=-version:refname \
+                     | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+                     | head -1)
+            if [[ -z "$LATEST" ]]; then
+              BASE=$(jq -r '.version' manifest.json)
+            else
+              BASE="${LATEST#v}"
+            fi
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE"
+            VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"    >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Update manifest.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          jq --arg v "$VERSION" '.version = $v' manifest.json > manifest.tmp
+          mv manifest.tmp manifest.json
+          echo "manifest.json updated to $VERSION"
+
+      - name: Commit and push manifest
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git diff --cached --quiet || git commit -m "Bump extension version to ${{ steps.version.outputs.version }}"
+          git push origin main
+
+      - name: Create zip archive
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          zip -r "garminbadges-updater-${VERSION}.zip" . \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "README.md"
+
+      - name: Create git tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            "garminbadges-updater-${VERSION}.zip"
+
+      - name: Write job summary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${{ github.repository }}"
+          BASE="https://github.com/${REPO}/releases/download/v${VERSION}"
+          {
+            echo "## Release v${VERSION}"
+            echo ""
+            echo "| Artifact | Download |"
+            echo "|---|---|"
+            echo "| Chrome Extension | [garminbadges-updater-${VERSION}.zip](${BASE}/garminbadges-updater-${VERSION}.zip) |"
+            echo ""
+            echo "[View release on GitHub](https://github.com/${REPO}/releases/tag/v${VERSION})"
+          } >> "$GITHUB_STEP_SUMMARY"
