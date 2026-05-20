@@ -1,6 +1,6 @@
 # garminbadges-updater
 
-Chrome extension (v2.0.0) that syncs your badge and challenge data from Garmin Connect to [Garmin Badge Database](https://garminbadges.com/).
+Chrome extension that syncs your badge and challenge data from Garmin Connect to [Garmin Badge Database](https://garminbadges.com/).
 
 ## How to use
 
@@ -48,13 +48,21 @@ Open the extension and click **Settings**:
 
 ## How to publish a new release
 
-1. Test locally and bump the `version` field in `manifest.json`.
+Releases are automated. Pushing to `main` triggers the **Release Extension** GitHub Actions workflow, which reads the version from `manifest.json`, auto-increments the patch, commits the updated manifest back, and publishes a GitHub release with the packaged zip. The next garminbadges frontend build will automatically fetch the new zip and serve it at `/tools/garminbadges-updater.zip`.
+
+**To release a new version:**
+
+1. Test locally.
 2. Update `update.html` with the new version number and release notes.
-3. Repackage the zip in the garminbadges repo:
-   - Update `frontend/public/tools/garminbadges-updater.zip` with the new extension files (`manifest.json` must be at the zip root, not inside a subfolder).
-   - Update the sync/upload page (`frontend/src/app/features/upload/`) if the version number or instructions changed.
-4. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
-5. Click the extension → **Package** → **Upload new package** → select your zip.
+3. Push to `main` — the CI handles versioning, packaging, and the GitHub release automatically.
+
+To release a specific version (e.g. a minor or major bump) instead of a patch increment, trigger the workflow manually from **Actions → Release Extension → Run workflow** and enter the version number.
+
+**To submit to the Chrome Web Store:**
+
+1. Download the zip from the [latest GitHub release](../../releases/latest).
+2. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+3. Click the extension → **Package** → **Upload new package** → select the zip.
 
 ## Architecture
 
