@@ -1,6 +1,6 @@
 # garminbadges-updater
 
-Chrome extension (v2.0) that syncs your badge and challenge data from Garmin Connect to [Garmin Badge Database](https://garminbadges.com/).
+Chrome extension (v2.0.0) that syncs your badge and challenge data from Garmin Connect to [Garmin Badge Database](https://garminbadges.com/).
 
 ## How to use
 
@@ -14,7 +14,7 @@ Progress is shown in real time. When finished, the popup displays added, updated
 
 ## What it syncs
 
-- All earned badges
+- All earned badges (including repeat counts for repeatable badges)
 - Active (joined, not yet completed) challenges with current progress
 - Ongoing repeatable badge progress
 
@@ -46,11 +46,13 @@ Open the extension and click **Settings**:
 5. Open the extension **Settings** and set the API URL to `http://localhost:8000/api`.
 6. Set your API key from `http://localhost:4200/dashboard`.
 
-## How to publish to the Chrome Web Store
+## How to publish a new release
 
-1. Test locally and bump the `version` in `manifest.json`.
-2. Update `update.html` with the latest version number and release notes.
-3. Zip the extension files — `manifest.json` must be at the zip root (not inside a subfolder).
+1. Test locally and bump the `version` field in `manifest.json`.
+2. Update `update.html` with the new version number and release notes.
+3. Repackage the zip in the garminbadges repo:
+   - Update `frontend/public/tools/garminbadges-updater.zip` with the new extension files (`manifest.json` must be at the zip root, not inside a subfolder).
+   - Update the sync/upload page (`frontend/src/app/features/upload/`) if the version number or instructions changed.
 4. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
 5. Click the extension → **Package** → **Upload new package** → select your zip.
 
@@ -58,6 +60,10 @@ Open the extension and click **Settings**:
 
 The extension injects `sync.js` into the active Garmin Connect tab when the user clicks **Sync now**. Running inside `connect.garmin.com`, the script can call Garmin's internal API endpoints directly using the user's existing browser session.
 
-All calls to the garminbadges.com API are routed through the background service worker (`background.js`) to avoid mixed-content and CORS restrictions that apply to injected content scripts.
+All calls to the garminbadges.com API are routed through the background service worker (`background.js`) to avoid mixed-content and CORS restrictions that apply to injected content scripts. The background worker only forwards requests to an allowlisted set of domains (`garminbadges.com`, `localhost`).
 
 Authentication uses the `api_key` field from the user's Dashboard — not a Sanctum session token. The extension calls `GET /api/sync/whoami` to resolve the username and `POST /api/sync` to upload badge data.
+
+### Repeat badge counts
+
+The authoritative repeat count comes from the `badgeEarnedNumber` field in Garmin's `badge/earned` endpoint response (not `earnedNumber`, which is often 1 and unreliable). The sync script reads `badgeEarnedNumber` and falls back to `earnedNumber` only if the former is absent.
