@@ -78,6 +78,7 @@ function showResult(result) {
     makeResultRow('Added',     result.added     ?? 0),
     makeResultRow('Updated',   result.updated   ?? 0),
     makeResultRow('Unchanged', result.unchanged ?? 0),
+    ...(result.removed ? [makeResultRow('Removed', result.removed, true)] : []),
     ...(result.skipped ? [makeResultRow('Skipped', result.skipped, true)] : []),
   );
   if (result.username) showProfileLinks(result.username);
