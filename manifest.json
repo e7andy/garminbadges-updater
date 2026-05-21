@@ -1,7 +1,7 @@
 {
   "name": "Garmin Badge Database",
   "description": "Sync your badge and challenge data from Garmin Connect",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "manifest_version": 3,
   "homepage_url": "https://garminbadges.com",
   "permissions": [
