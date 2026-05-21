@@ -24,7 +24,7 @@ async function loadUsername() {
   if (username) { showProfileLinks(username); return; }
 
   const { apiKey, apiBase } = await chrome.storage.sync.get({
-    apiKey: '', apiBase: 'https://garminbadges.com/api',
+    apiKey: '', apiBase: 'https://api.garminbadges.com/api',
   });
   if (!apiKey) return;
 

@@ -1,5 +1,5 @@
 function restore() {
-  chrome.storage.sync.get({ apiKey: '', apiBase: 'https://garminbadges.com/api' }, (data) => {
+  chrome.storage.sync.get({ apiKey: '', apiBase: 'https://api.garminbadges.com/api' }, (data) => {
     document.getElementById('apiKey').value   = data.apiKey;
     document.getElementById('apiBase').value  = data.apiBase;
   });
@@ -7,7 +7,7 @@ function restore() {
 
 function save() {
   const apiKey  = document.getElementById('apiKey').value.trim();
-  const apiBase = document.getElementById('apiBase').value.trim() || 'https://garminbadges.com/api';
+  const apiBase = document.getElementById('apiBase').value.trim() || 'https://api.garminbadges.com/api';
   const status  = document.getElementById('save-status');
 
   if (!apiKey) {

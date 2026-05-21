@@ -35,7 +35,7 @@ Open the extension and click **Settings**:
 | Setting | Description |
 |---------|-------------|
 | **API key** | Your personal key from the [Dashboard](https://garminbadges.com/dashboard). Required. |
-| **API URL** | Backend URL. Default: `https://garminbadges.com/api`. Change to `http://localhost:8000/api` for local development. |
+| **API URL** | Backend URL. Default: `https://api.garminbadges.com/api`. Change to `http://localhost:8000/api` for local development. |
 
 ## How to test locally
 

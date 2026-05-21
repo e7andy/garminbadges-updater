@@ -11,7 +11,7 @@
   ],
   "host_permissions": [
     "*://connect.garmin.com/*",
-    "https://garminbadges.com/api/*",
+    "https://api.garminbadges.com/api/*",
     "http://localhost/api/*",
     "http://localhost:*/api/*"
   ],

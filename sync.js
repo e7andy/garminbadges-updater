@@ -15,7 +15,7 @@
 
   const opts = await chrome.storage.sync.get({
     apiKey:  '',
-    apiBase: 'https://garminbadges.com/api',
+    apiBase: 'https://api.garminbadges.com/api',
   });
 
   if (!opts.apiKey) {
