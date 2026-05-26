@@ -71,24 +71,71 @@
       progress('Could not fetch challenges — skipping');
     }
 
-    // 3. Determine which badges need a v3 detail fetch
-    const earnedIds    = new Set(earned.map(b => b.badgeId).filter(Boolean));
-    const challengeIds = new Set(challenges.map(c => c.badgeId).filter(Boolean));
-    const relevantIds  = new Set(challengeIds);
+    // 2b. In-progress virtual challenges (e.g. virtual adventures)
+    try {
+      const raw = await garminGet('/badgechallenge-service/virtualChallenge/inProgress');
+      const virtual = Array.isArray(raw) ? raw : (raw?.virtualChallengeList ?? []);
+      if (virtual.length > 0) {
+        progress(`Found ${virtual.length} in-progress virtual challenges`);
+        challenges = challenges.concat(virtual);
+      }
+    } catch (_) {
+      progress('Could not fetch virtual challenges — skipping');
+    }
 
+    // 2c. Available badges with progress targets (not yet earned)
+    function deduplicateNumberedSeries(badges, nameMap) {
+      // Uses canonical names from the site DB so cross-endpoint series are matched
+      // correctly even when different Garmin endpoints use different name fields.
+      const groups = new Map();
+      for (const b of badges) {
+        const name = (nameMap?.get(b.badgeId)) || (b.badgeName || b.badgeTitle || b.name || '').trim();
+        const m    = name.match(/^(.+?)\s+(\d+)$/);
+        const base = m ? m[1].trim() : name;
+        const num  = m ? parseInt(m[2]) : 1;
+        if (!groups.has(base)) groups.set(base, []);
+        groups.get(base).push({ num, badge: b });
+      }
+      return [...groups.values()].map(members => members.reduce((a, b) => a.num <= b.num ? a : b).badge);
+    }
+
+    let available = [];
+    try {
+      const raw = await garminGet('/badge-service/badge/available');
+      const all  = Array.isArray(raw) ? raw : [];
+      available  = all.filter(b => b.badgeTargetValue != null && b.badgeCategoryId !== 4);
+      if (available.length > 0) {
+        progress(`Found ${available.length} available badges with targets`);
+      }
+    } catch (_) {
+      progress('Could not fetch available badges — skipping');
+    }
+
+    // 3. Fetch site badge catalogue (used for detail-fetch filtering and name deduplication)
+    let siteBadges = [];
     try {
       const resp = await new Promise(resolve =>
         chrome.runtime.sendMessage({ type: 'fetch', url: `${opts.apiBase}/badges` }, resolve)
       );
-      if (resp?.ok) {
-        for (const b of resp.data) {
-          // All unlimited repeatable earned badges need v3 detail for accurate repeat count
-          if (earnedIds.has(b.id) && !b.end_date && b.repeatable) {
-            relevantIds.add(b.id);
-          }
-        }
-      }
+      if (resp?.ok) siteBadges = resp.data ?? [];
     } catch (_) {}
+
+    const nameById = new Map(siteBadges.filter(b => b.id && b.name).map(b => [b.id, b.name]));
+
+    // 4. Determine which badges need a v3 detail fetch
+    // available badges are excluded so they don't trigger extra detail fetches
+    const earnedIds    = new Set(earned.map(b => b.badgeId).filter(Boolean));
+    const challengeIds = new Set(challenges.map(c => c.badgeId).filter(Boolean));
+    const relevantIds  = new Set(challengeIds);
+
+    for (const b of siteBadges) {
+      if (earnedIds.has(b.id) && !b.end_date && b.repeatable) {
+        relevantIds.add(b.id);
+      }
+    }
+
+    // Merge all challenge sources and deduplicate numbered series using canonical names
+    challenges = deduplicateNumberedSeries(challenges.concat(available), nameById);
 
     // 4. Fetch v3 details in parallel
     const details = {};
@@ -162,7 +209,7 @@
         progress_value: c.userProfileBadgeProgressValue ?? c.badgeProgressValue ?? c.progressValue ?? 0,
         assoc_type_id:  c.badgeAssocTypeId ?? null,
         assoc_data_id:  null,
-        create_date:    c.joinDateLocal || c.createDate || null,
+        create_date:    c.joinDateLocal || c.createDate || c.badgeCreateDate || null,
       });
     }
 
