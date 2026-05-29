@@ -137,18 +137,27 @@ syncBtn.addEventListener('click', async () => {
   setStatus('syncing', 'Starting…');
   setSyncing(true);
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const onGarmin = tab?.url?.includes('connect.garmin.com');
+  // Prefer the active tab; fall back to any open Garmin Connect tab
+  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let targetTab = activeTab?.url?.includes('connect.garmin.com') ? activeTab : null;
 
-  if (!onGarmin) {
-    setStatus('error', 'Not on Garmin Connect');
-    appendLog('Navigate to connect.garmin.com and log in, then try again.');
+  if (!targetTab) {
+    const garminTabs = await chrome.tabs.query({ url: '*://connect.garmin.com/*' });
+    if (garminTabs.length > 0) {
+      targetTab = garminTabs[0];
+      appendLog('Using existing Garmin Connect tab…');
+    }
+  }
+
+  if (!targetTab) {
+    setStatus('error', 'Garmin Connect not open');
+    appendLog('Open connect.garmin.com and log in, then try again.');
     setSyncing(false);
     return;
   }
 
   chrome.scripting.executeScript({
-    target: { tabId: tab.id },
+    target: { tabId: targetTab.id },
     files: ['sync.js'],
   });
 });
