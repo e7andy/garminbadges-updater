@@ -11,9 +11,7 @@
   ],
   "host_permissions": [
     "*://connect.garmin.com/*",
-    "https://api.garminbadges.com/api/*",
-    "http://localhost/api/*",
-    "http://localhost:*/api/*"
+    "https://api.garminbadges.com/api/*"
   ],
   "background": {
     "service_worker": "background.js"
