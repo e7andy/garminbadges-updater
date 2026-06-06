@@ -53,6 +53,13 @@
   // ── Main sync ────────────────────────────────────────────────────────────────
 
   try {
+    // 0. Garmin Connect username (needed for repeatable earn detail endpoint)
+    let garminUsername = '';
+    try {
+      const profile = await garminGet('/userprofile-service/socialProfile');
+      garminUsername = profile.userName || profile.displayName || '';
+    } catch (_) {}
+
     // 1. Earned badges
     progress('Fetching earned badges…');
     const earned = await garminGet('/badge-service/badge/earned');
@@ -146,6 +153,38 @@
       }));
     }
 
+    // 4b. Fetch repeatable earn history for badges earned more than once.
+    //     badge/earned often lacks dates for older earns; the repeatable v2
+    //     endpoint provides the correct date for every historical repeat.
+    const earnCounts = new Map();
+    for (const b of earned) {
+      if (b.badgeId) earnCounts.set(b.badgeId, (earnCounts.get(b.badgeId) || 0) + 1);
+    }
+    const repeatBadgeIds = [...earnCounts.entries()]
+      .filter(([, cnt]) => cnt > 1)
+      .map(([id]) => id);
+
+    // repeatableDates: badgeId -> Map(earnedNumber -> earnedDate)
+    const repeatableDates = new Map();
+    if (garminUsername && repeatBadgeIds.length > 0) {
+      progress(`Fetching repeat earn history for ${repeatBadgeIds.length} badges…`);
+      await Promise.all(repeatBadgeIds.map(async (id) => {
+        try {
+          const data = await garminGet(
+            `/badge-service/badge/${garminUsername}/earned/detail/repeatable/v2/${id}`
+          );
+          const earns = Array.isArray(data) ? data : (data?.earnedDetailList ?? data?.badgeEarnedList ?? []);
+          const dateMap = new Map();
+          for (const earn of earns) {
+            const num  = parseInt(earn.badgeEarnedNumber ?? earn.earnedNumber) || 0;
+            const date = earn.badgeEarnedDate || earn.earnedDate || null;
+            if (num && date) dateMap.set(num, date);
+          }
+          if (dateMap.size) repeatableDates.set(id, dateMap);
+        } catch (_) {}
+      }));
+    }
+
     // 5. Map to schema
     const records = [];
     const seen    = new Set();
@@ -159,10 +198,12 @@
       const key = `${badgeId}:${num}`;
       if (seen.has(key)) continue;
       seen.add(key);
+      // Prefer repeatable detail date (accurate for historical earns)
+      const earnedDate = repeatableDates.get(badgeId)?.get(num) ?? b.badgeEarnedDate ?? null;
       records.push({
         badge_id:       badgeId,
         earned_number:  num,
-        earned_date:    b.badgeEarnedDate   || null,
+        earned_date:    earnedDate,
         progress_value: b.badgeProgressValue ?? null,
         assoc_type_id:  b.badgeAssocTypeId  ?? null,
         assoc_data_id:  b.badgeAssocDataId  ? String(b.badgeAssocDataId) : null,
@@ -228,9 +269,12 @@
       'Accept':        'application/json',
     };
 
+    const syncPayload = { user_badges: records };
+    if (garminUsername) syncPayload.garmin_username = garminUsername;
+
     const upload = await bgFetch(
       `${opts.apiBase}/sync`, 'POST', authHeaders,
-      JSON.stringify({ user_badges: records })
+      JSON.stringify(syncPayload)
     );
 
     if (!upload.ok) {
