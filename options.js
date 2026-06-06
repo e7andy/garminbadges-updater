@@ -23,8 +23,15 @@ function save() {
   });
 }
 
+const DEFAULT_API_BASE = 'https://api.garminbadges.com/api';
+
 document.addEventListener('DOMContentLoaded', restore);
 document.getElementById('save-btn').addEventListener('click', save);
+
+document.getElementById('reset-api-url').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('apiBase').value = DEFAULT_API_BASE;
+});
 
 document.getElementById('toggleApiKey').addEventListener('click', () => {
   const input   = document.getElementById('apiKey');
