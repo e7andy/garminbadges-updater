@@ -169,6 +169,16 @@
       ...[...earnCounts.entries()].filter(([, cnt]) => cnt > 1).map(([id]) => id),
     ])];
 
+    // Build a map of max known earn number per badge from badge/earned data.
+    // Used to anchor array-index numbering when the v2 endpoint returns a
+    // capped subset (e.g. last 100 of 146 earns).
+    const maxEarnedByBadge = new Map();
+    for (const b of earned) {
+      if (!b.badgeId) continue;
+      const num = parseInt(b.badgeEarnedNumber) || parseInt(b.earnedNumber) || 1;
+      if (num > (maxEarnedByBadge.get(b.badgeId) || 0)) maxEarnedByBadge.set(b.badgeId, num);
+    }
+
     // repeatableEarns: badgeId -> Map(earnedNumber -> {earned_date, assoc_type_id, assoc_data_id})
     const repeatableEarns = new Map();
     let firstRepeatableResponse = null; // captured for diagnostics
@@ -191,12 +201,16 @@
             }
           }
 
+          // Anchor the numbering: Garmin returns most-recent first, so the item
+          // at index 0 is the highest-numbered earn. If the API capped its
+          // response (e.g. 100 of 146), we use the max earn number from
+          // badge/earned to get the right starting point.
+          const maxNum = maxEarnedByBadge.get(id) || earns.length;
+
           const earnMap = new Map();
           earns.forEach((earn, index) => {
-            // The v2 response has no badgeEarnedNumber field — use the array position.
-            // Garmin returns most-recent first, so earn #N is at index (total - N).
             const num = parseInt(earn.badgeEarnedNumber ?? earn.earnedNumber ?? 0)
-                        || (earns.length - index);
+                        || (maxNum - index);
             const date = earn.badgeEarnedDate || earn.earnedDate || earn.date || null;
             if (num && date) earnMap.set(num, {
               earned_date:   date,
