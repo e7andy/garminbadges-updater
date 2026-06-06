@@ -192,17 +192,18 @@
           }
 
           const earnMap = new Map();
-          for (const earn of earns) {
-            const num  = parseInt(
-              earn.badgeEarnedNumber ?? earn.earnedNumber ?? earn.badgeNumber ?? 0
-            ) || 0;
+          earns.forEach((earn, index) => {
+            // The v2 response has no badgeEarnedNumber field — use the array position.
+            // Garmin returns most-recent first, so earn #N is at index (total - N).
+            const num = parseInt(earn.badgeEarnedNumber ?? earn.earnedNumber ?? 0)
+                        || (earns.length - index);
             const date = earn.badgeEarnedDate || earn.earnedDate || earn.date || null;
             if (num && date) earnMap.set(num, {
               earned_date:   date,
               assoc_type_id: earn.badgeAssocTypeId ?? earn.assocTypeId ?? null,
               assoc_data_id: earn.badgeAssocDataId ? String(earn.badgeAssocDataId) : null,
             });
-          }
+          });
           if (earnMap.size) repeatableEarns.set(id, earnMap);
         } catch (_) {}
       }));
