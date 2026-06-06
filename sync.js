@@ -153,19 +153,24 @@
       }));
     }
 
-    // 4b. Fetch repeatable earn history for badges earned more than once.
-    //     badge/earned often lacks dates for older earns; the repeatable v2
-    //     endpoint provides the correct date for every historical repeat.
+    // 4b. Fetch repeatable earn history for all earned repeatable badges.
+    //     badge/earned only returns recent earns; the repeatable v2 endpoint
+    //     provides the correct date for every historical repeat, including ones
+    //     not returned by badge/earned at all.
     const earnCounts = new Map();
     for (const b of earned) {
       if (b.badgeId) earnCounts.set(b.badgeId, (earnCounts.get(b.badgeId) || 0) + 1);
     }
-    const repeatBadgeIds = [...earnCounts.entries()]
-      .filter(([, cnt]) => cnt > 1)
-      .map(([id]) => id);
+    const repeatableSiteIds = new Set(siteBadges.filter(b => b.repeatable && b.id).map(b => b.id));
+    const repeatBadgeIds = [...new Set([
+      // all earned repeatable badges from the site catalogue
+      ...[...earnCounts.keys()].filter(id => repeatableSiteIds.has(id)),
+      // plus any badge appearing more than once in badge/earned (not yet catalogued)
+      ...[...earnCounts.entries()].filter(([, cnt]) => cnt > 1).map(([id]) => id),
+    ])];
 
-    // repeatableDates: badgeId -> Map(earnedNumber -> earnedDate)
-    const repeatableDates = new Map();
+    // repeatableEarns: badgeId -> Map(earnedNumber -> {earned_date, assoc_type_id, assoc_data_id})
+    const repeatableEarns = new Map();
     if (garminUsername && repeatBadgeIds.length > 0) {
       progress(`Fetching repeat earn history for ${repeatBadgeIds.length} badges…`);
       await Promise.all(repeatBadgeIds.map(async (id) => {
@@ -174,13 +179,17 @@
             `/badge-service/badge/${garminUsername}/earned/detail/repeatable/v2/${id}`
           );
           const earns = Array.isArray(data) ? data : (data?.earnedDetailList ?? data?.badgeEarnedList ?? []);
-          const dateMap = new Map();
+          const earnMap = new Map();
           for (const earn of earns) {
             const num  = parseInt(earn.badgeEarnedNumber ?? earn.earnedNumber) || 0;
             const date = earn.badgeEarnedDate || earn.earnedDate || null;
-            if (num && date) dateMap.set(num, date);
+            if (num && date) earnMap.set(num, {
+              earned_date:   date,
+              assoc_type_id: earn.badgeAssocTypeId ?? earn.assocTypeId ?? null,
+              assoc_data_id: earn.badgeAssocDataId ? String(earn.badgeAssocDataId) : null,
+            });
           }
-          if (dateMap.size) repeatableDates.set(id, dateMap);
+          if (earnMap.size) repeatableEarns.set(id, earnMap);
         } catch (_) {}
       }));
     }
@@ -199,7 +208,8 @@
       if (seen.has(key)) continue;
       seen.add(key);
       // Prefer repeatable detail date (accurate for historical earns)
-      const earnedDate = repeatableDates.get(badgeId)?.get(num) ?? b.badgeEarnedDate ?? null;
+      const repeatInfo = repeatableEarns.get(badgeId)?.get(num);
+      const earnedDate = repeatInfo?.earned_date ?? b.badgeEarnedDate ?? null;
       records.push({
         badge_id:       badgeId,
         earned_number:  num,
@@ -252,6 +262,24 @@
         assoc_data_id:  null,
         create_date:    c.joinDateLocal || c.createDate || c.badgeCreateDate || null,
       });
+    }
+
+    // 5b. Backfill historical repeatable earn records not returned by badge/earned.
+    for (const [badgeId, earnMap] of repeatableEarns) {
+      for (const [num, info] of earnMap) {
+        const key = `${badgeId}:${num}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        records.push({
+          badge_id:       badgeId,
+          earned_number:  num,
+          earned_date:    info.earned_date,
+          progress_value: null,
+          assoc_type_id:  info.assoc_type_id,
+          assoc_data_id:  info.assoc_data_id,
+          create_date:    info.earned_date,
+        });
+      }
     }
 
     // 6. Upload via background (avoids mixed-content block on HTTPS pages)
