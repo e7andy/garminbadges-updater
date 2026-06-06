@@ -171,6 +171,7 @@
 
     // repeatableEarns: badgeId -> Map(earnedNumber -> {earned_date, assoc_type_id, assoc_data_id})
     const repeatableEarns = new Map();
+    let firstRepeatableResponse = null; // captured for diagnostics
     if (garminUsername && repeatBadgeIds.length > 0) {
       progress(`Fetching repeat earn history for ${repeatBadgeIds.length} badges…`);
       await Promise.all(repeatBadgeIds.map(async (id) => {
@@ -178,11 +179,24 @@
           const data = await garminGet(
             `/badge-service/badge/${garminUsername}/earned/detail/repeatable/v2/${id}`
           );
-          const earns = Array.isArray(data) ? data : (data?.earnedDetailList ?? data?.badgeEarnedList ?? []);
+          if (!firstRepeatableResponse) firstRepeatableResponse = { id, data };
+
+          // Find the array of earn records regardless of which key Garmin uses
+          let earns = [];
+          if (Array.isArray(data)) {
+            earns = data;
+          } else if (data && typeof data === 'object') {
+            for (const val of Object.values(data)) {
+              if (Array.isArray(val) && val.length > 0) { earns = val; break; }
+            }
+          }
+
           const earnMap = new Map();
           for (const earn of earns) {
-            const num  = parseInt(earn.badgeEarnedNumber ?? earn.earnedNumber) || 0;
-            const date = earn.badgeEarnedDate || earn.earnedDate || null;
+            const num  = parseInt(
+              earn.badgeEarnedNumber ?? earn.earnedNumber ?? earn.badgeNumber ?? 0
+            ) || 0;
+            const date = earn.badgeEarnedDate || earn.earnedDate || earn.date || null;
             if (num && date) earnMap.set(num, {
               earned_date:   date,
               assoc_type_id: earn.badgeAssocTypeId ?? earn.assocTypeId ?? null,
@@ -192,6 +206,18 @@
           if (earnMap.size) repeatableEarns.set(id, earnMap);
         } catch (_) {}
       }));
+
+      const totalFound = [...repeatableEarns.values()].reduce((s, m) => s + m.size, 0);
+      if (totalFound > 0) {
+        progress(`Found ${totalFound} historical earn records across ${repeatableEarns.size} badges`);
+      } else if (firstRepeatableResponse) {
+        // No earns parsed — show raw response shape to diagnose field names
+        const { id, data } = firstRepeatableResponse;
+        const shape = Array.isArray(data)
+          ? `array[${data.length}] keys: ${data[0] ? Object.keys(data[0]).join(', ') : 'empty'}`
+          : `object keys: ${Object.keys(data || {}).join(', ')}`;
+        progress(`⚠ Could not parse repeat earns for badge ${id}. Response shape: ${shape}`);
+      }
     }
 
     // 5. Map to schema
