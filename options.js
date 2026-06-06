@@ -25,3 +25,12 @@ function save() {
 
 document.addEventListener('DOMContentLoaded', restore);
 document.getElementById('save-btn').addEventListener('click', save);
+
+document.getElementById('toggleApiKey').addEventListener('click', () => {
+  const input   = document.getElementById('apiKey');
+  const eyeOn   = document.getElementById('eye-icon');
+  const eyeOff  = document.getElementById('eye-off-icon');
+  const visible = input.classList.toggle('visible');
+  eyeOn.style.display  = visible ? 'none'  : '';
+  eyeOff.style.display = visible ? ''      : 'none';
+});
