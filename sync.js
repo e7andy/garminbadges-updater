@@ -187,7 +187,8 @@
       await Promise.all(repeatBadgeIds.map(async (id) => {
         try {
           const data = await garminGet(
-            `/badge-service/badge/${garminUsername}/earned/detail/repeatable/v2/${id}`
+            `/badge-service/badge/${garminUsername}/earned/detail/repeatable/v2/${id}`,
+            { start: 1, limit: 1000 }
           );
           if (!firstRepeatableResponse) firstRepeatableResponse = { id, data };
 
