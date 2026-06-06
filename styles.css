@@ -267,7 +267,6 @@ label {
   color: #444;
 }
 
-input[type=password],
 input[type=url],
 input[type=text] {
   padding: 8px 10px;
@@ -280,6 +279,10 @@ input[type=text] {
   font-family: inherit;
 }
 input:focus { border-color: #1a73e8; }
+
+/* Visually mask the API key like a password field while keeping type=text
+   so Android/Kiwi Browser doesn't block paste operations. */
+#apiKey { -webkit-text-security: disc; }
 
 small {
   font-size: 11px;
