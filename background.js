@@ -8,22 +8,43 @@ chrome.runtime.onInstalled.addListener((details) => {
 // Sync state — persists while the service worker is alive.
 let syncState = { status: 'idle', log: [], result: null };
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+// Relay sync status messages back to content scripts in the originating tab
+// (chrome.runtime.sendMessage from a content script does not reach other
+// content scripts directly — only the background and extension pages).
+function relayToTab(sender, msg) {
+  if (sender.tab?.id != null) {
+    chrome.tabs.sendMessage(sender.tab.id, msg).catch(() => {});
+  }
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  // ── Sync requested from the in-page widget ──────────────────────────────────
+  if (msg.type === 'widget:sync') {
+    if (sender.tab?.id != null) {
+      chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, files: ['sync.js'] });
+    }
+    return;
+  }
+
   // ── Sync state updates (from injected content script) ──────────────────────
   if (msg.type === 'sync:progress') {
     syncState = { status: 'syncing', log: [...syncState.log, msg.text].slice(-20), result: null };
+    relayToTab(sender, msg);
     return;
   }
   if (msg.type === 'sync:done') {
     syncState = { status: 'done', log: syncState.log, result: msg.result };
+    relayToTab(sender, msg);
     return;
   }
   if (msg.type === 'sync:error') {
     syncState = { status: 'error', log: [...syncState.log, msg.text], result: null };
+    relayToTab(sender, msg);
     return;
   }
   if (msg.type === 'sync:reset') {
     syncState = { status: 'idle', log: [], result: null };
+    relayToTab(sender, msg);
     return;
   }
 

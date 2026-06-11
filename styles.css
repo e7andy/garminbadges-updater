@@ -269,6 +269,19 @@ label {
   color: #444;
 }
 
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.checkbox-label input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  accent-color: #e53935;
+  cursor: pointer;
+}
+
 input[type=url],
 input[type=text] {
   padding: 8px 10px;
