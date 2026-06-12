@@ -50,20 +50,23 @@
       @keyframes gb-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       .gb-status {
         max-width: 260px;
-        padding: 6px 12px;
+        padding: 8px 12px;
         background: #fff; color: #333;
         border-radius: 8px;
-        font-size: 12px; line-height: 1.4;
+        font-size: 12px; line-height: 1.5;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        text-align: right;
+        text-align: left;
+        word-wrap: break-word;
       }
       .gb-status.error { color: #c5221f; }
       .gb-status.done  { color: #1e8e3e; }
       .gb-status.hidden { display: none; }
       .gb-settings-link {
-        background: none; border: none; padding: 0; margin-left: 6px;
+        display: block; margin-top: 4px;
+        background: none; border: none; padding: 0;
         color: #e53935; font-size: 12px; font-weight: 600; cursor: pointer;
         text-decoration: underline;
+        text-align: left;
       }
     `;
     shadow.appendChild(style);
