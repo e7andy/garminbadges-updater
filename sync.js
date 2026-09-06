@@ -118,11 +118,14 @@
       progress('Could not fetch available badges — skipping');
     }
 
-    // 3. Fetch site badge catalogue (used for detail-fetch filtering and name deduplication)
+    // 3. Fetch site badge catalogue (used for detail-fetch filtering and name deduplication).
+    //    include_outdated=true is required: badges with a past end_date must still be
+    //    considered for repeat-history backfill (see repeatableSiteIds below), or repeats
+    //    of already-expired seasonal badges silently stop getting historical earn dates.
     let siteBadges = [];
     try {
       const resp = await new Promise(resolve =>
-        chrome.runtime.sendMessage({ type: 'fetch', url: `${opts.apiBase}/badges` }, resolve)
+        chrome.runtime.sendMessage({ type: 'fetch', url: `${opts.apiBase}/badges?include_outdated=true` }, resolve)
       );
       if (resp?.ok) siteBadges = resp.data ?? [];
     } catch (_) {}
