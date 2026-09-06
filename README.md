@@ -53,7 +53,11 @@ Releases are automated. Pushing to `main` triggers the **Release Extension** Git
 **To release a new version:**
 
 1. Test locally.
-2. Update `update.html` with the new version number and release notes.
+2. Update the `CHANGES` array at the top of `update.js` with this release's highlights.
+   This is the only manual edit needed for the update page — it's shown to
+   already-configured users on every install/update (see
+   [The update page](#the-update-page) below), and the version number and
+   onboarding steps for new users update automatically.
 3. Push to `main` — the CI handles versioning, packaging, and the GitHub release automatically.
 
 To release a specific version (e.g. a minor or major bump) instead of a patch increment, trigger the workflow manually from **Actions → Release Extension → Run workflow** and enter the version number.
@@ -63,6 +67,22 @@ To release a specific version (e.g. a minor or major bump) instead of a patch in
 1. Download the zip from the [latest GitHub release](../../releases/latest).
 2. Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
 3. Click the extension → **Package** → **Upload new package** → select the zip.
+
+## The update page
+
+`background.js` opens `update.html` in a new tab on both fresh install and every
+update (`chrome.runtime.onInstalled`, reasons `install` and `update`). The page
+shows different content depending on whether the extension is already configured:
+
+- **Returning users** (an API key is already saved in `chrome.storage.sync`): a
+  short "nothing to reconfigure" message plus the **What's new in this version**
+  list, populated from the `CHANGES` array at the top of `update.js`.
+- **New users** (no API key saved yet): the 4-step onboarding flow instead —
+  a changelog means nothing to someone who's never used a prior version.
+
+The version shown in the header comes from `chrome.runtime.getManifest().version`,
+so it never needs manual updating. The only thing to edit per release is `CHANGES`
+in `update.js`.
 
 ## Architecture
 

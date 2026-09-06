@@ -185,6 +185,8 @@
       border: none;
       border-top: 1px solid #eee;
     }
+
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -192,69 +194,88 @@
     <div class="card-header">
       <img src="/images/icon_128.png" alt="" />
       <div>
-        <h1>Extension Updated to v2.0</h1>
+        <h1 id="title">Extension updated</h1>
         <p>Garmin Badge Database — Data Sync</p>
       </div>
     </div>
 
     <div class="card-body">
-      <p class="intro">
-        The Garmin Badge Database has been completely rebuilt. The extension has been updated
-        to match — you will need to create a free account and set your API key before syncing.
-      </p>
+      <!-- Shown to accounts that already have an API key configured -->
+      <section id="returning-user">
+        <p class="intro">
+          Thanks for keeping the extension up to date — no action needed, your
+          settings and API key are unchanged.
+        </p>
 
-      <div>
-        <div class="section-title">What's new</div>
-        <div class="changes">
-          <div class="change-item">New site with profiles, leaderboards, and personal challenge tracking</div>
-          <div class="change-item">Challenge progress synced with current values from Garmin Connect</div>
-          <div class="change-item">Personal calendar feeds for badges and challenges</div>
-          <div class="change-item">Secure API key authentication — no password stored</div>
-          <div class="change-item">Real-time sync progress shown in the extension popup</div>
-        </div>
-      </div>
-
-      <hr class="divider" />
-
-      <div>
-        <div class="section-title">Getting started</div>
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">
-              <a href="https://garminbadges.com/signin" target="_blank">Create a free account</a>
-              at garminbadges.com — sign in with Google or email and password.
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-text">
-              Go to your <a href="https://garminbadges.com/dashboard" target="_blank">Dashboard</a>
-              and copy your <strong>API key</strong>.
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">
-              Click the extension icon in your toolbar, open <strong>Settings</strong>,
-              and paste your API key.
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-text">
-              Browse to <a href="https://connect.garmin.com" target="_blank">Garmin Connect</a>,
-              make sure you are logged in, then click <strong>Sync now</strong>.
-            </div>
+        <div>
+          <div class="section-title">What's new in this version</div>
+          <div class="changes" id="changes-returning">
+            <!-- populated per release, see CHANGES below -->
           </div>
         </div>
-      </div>
 
-      <div class="cta">
-        <a href="https://garminbadges.com/signin" target="_blank" class="btn-primary">Create account</a>
-        <a href="https://garminbadges.com/dashboard" target="_blank" class="btn-secondary">Go to Dashboard</a>
-      </div>
+        <hr class="divider" />
+
+        <div class="cta">
+          <a href="https://garminbadges.com/dashboard" target="_blank" class="btn-primary">Go to Dashboard</a>
+          <a href="https://connect.garmin.com" target="_blank" class="btn-secondary">Open Garmin Connect</a>
+        </div>
+        <p class="intro" style="font-size: 13px; color: #666;">
+          Ready to sync? Browse to Garmin Connect, make sure you're logged in, then
+          click the extension icon in your toolbar and press <strong>Sync now</strong>.
+        </p>
+      </section>
+
+      <!-- Shown when no API key has been configured yet -->
+      <section id="new-user" hidden>
+        <p class="intro">
+          The Garmin Badge Database tracks your earned badges, challenges, and progress
+          from Garmin Connect. This extension keeps your data in sync automatically.
+        </p>
+
+        <div>
+          <div class="section-title">Getting started</div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <a href="https://garminbadges.com/signin" target="_blank">Create a free account</a>
+                at garminbadges.com — sign in with Google or email and password.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                Go to your <a href="https://garminbadges.com/dashboard" target="_blank">Dashboard</a>
+                and copy your <strong>API key</strong>.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                Click the extension icon in your toolbar, open <strong>Settings</strong>,
+                and paste your API key.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-text">
+                Browse to <a href="https://connect.garmin.com" target="_blank">Garmin Connect</a>,
+                make sure you are logged in, then click <strong>Sync now</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <a href="https://garminbadges.com/signin" target="_blank" class="btn-primary">Create account</a>
+          <a href="https://garminbadges.com/dashboard" target="_blank" class="btn-secondary">Go to Dashboard</a>
+        </div>
+      </section>
+
     </div>
   </div>
+
+  <script src="update.js"></script>
 </body>
 </html>
