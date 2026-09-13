@@ -47,7 +47,7 @@
       .gb-dismiss-btn:hover { opacity: 1; }
       .gb-icon { width: 15px; height: 15px; flex-shrink: 0; }
       .gb-icon.spin { animation: gb-spin 1s linear infinite; }
-      @keyframes gb-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes gb-spin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
       .gb-status {
         max-width: 260px;
         padding: 8px 12px;
