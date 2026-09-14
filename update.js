@@ -2,8 +2,7 @@
 // Shown only to users who already have the extension configured — new users
 // get the onboarding steps instead, since a changelog means nothing to them yet.
 const CHANGES = [
-  'Badge catalogue sync now includes expired/retired badges',
-  'Fixes historical repeat-earn dates going missing for badges whose earning window has closed',
+  'The spinner in the FAB (floation action button) now spins in the correct direction.',
 ];
 
 document.getElementById('title').textContent =
