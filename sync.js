@@ -242,6 +242,7 @@
     // 5. Map to schema
     const records = [];
     const seen    = new Set();
+    const limitByBadge = new Map(); // badgeLimitCount (e.g. 250) per repeatable badge
 
     // Earned records — badge/earned returns one record per earn.
     // badgeEarnedNumber is the ordinal of that specific earn (1st, 2nd, 3rd…).
@@ -249,6 +250,24 @@
       const badgeId = b.badgeId;
       if (!badgeId) continue;
       const num = parseInt(b.badgeEarnedNumber) || parseInt(b.earnedNumber) || 1;
+
+      if (b.badgeLimitCount) limitByBadge.set(badgeId, parseInt(b.badgeLimitCount));
+
+      // The v2 history has no per-entry earn number — entries are numbered by
+      // position, newest first. When several earns share one timestamp, Garmin's
+      // badge/earned can name a different one of them as "latest" than v2's order
+      // does. Storing both would duplicate that earn and drop another, so when v2
+      // already lists this earn (same assoc_data_id) under a different number,
+      // let the v2 record stand and skip this one.
+      const assocId   = b.badgeAssocDataId ? String(b.badgeAssocDataId) : null;
+      const repeatMap = repeatableEarns.get(badgeId);
+      if (repeatMap && assocId) {
+        const matches = [...repeatMap.entries()]
+          .filter(([, info]) => info.assoc_data_id === assocId)
+          .map(([n]) => n);
+        if (matches.length && !matches.includes(num)) continue;
+      }
+
       const key = `${badgeId}:${num}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -272,6 +291,9 @@
       const lastNum  = parseInt(detail.badgeEarnedNumber) || 0;
       const progress = detail.badgeProgressValue;
       if (progress == null) continue;
+      // A badge that has reached its earn limit can't be earned again.
+      const limit = parseInt(detail.badgeLimitCount) || limitByBadge.get(badgeId);
+      if (limit && lastNum >= limit) continue;
       const target     = detail.badgeTargetValue;
       const earnedDate = detail.badgeEarnedDate;
       if (earnedDate && target != null && parseFloat(progress) >= parseFloat(target)) continue;
