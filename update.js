@@ -2,7 +2,8 @@
 // Shown only to users who already have the extension configured — new users
 // get the onboarding steps instead, since a changelog means nothing to them yet.
 const CHANGES = [
-  'The spinner in the FAB (floation action button) now spins in the correct direction.',
+  'Fixed repeatable badges (e.g. Challenge Champ) sometimes being saved twice, with another earn going missing, when several earns share the same timestamp.',
+  'Badges that have reached their earn limit (e.g. 250) no longer show a phantom "next" in-progress entry.',
 ];
 
 document.getElementById('title').textContent =
